@@ -6,9 +6,9 @@ import com.wmz.campusplatform.pojo.User;
 import com.wmz.campusplatform.pojo.ReturnMessage;
 import com.wmz.campusplatform.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 public class LoginController {
@@ -18,16 +18,23 @@ public class LoginController {
 
 
     @PostMapping("/login")
-    public ResultTool login(String username, String pwd, String role){
+    public ResultTool login(@RequestBody Map<String, String> map){
+        String username = map.get("username");
+        String pwd = map.get("pwd");
+        String role = map.get("role");
         ResultTool resultTool = new ResultTool();
         User user = userRepository.findByStuIdAndPwdAndRole(username, pwd, role);
         if (user != null){
+            StpUtil.login(user.getId());
             resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
             resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-            StpUtil.login(user.getId());
-        }else {
+            resultTool.setData(StpUtil.getTokenValue());
+        }else if (userRepository.findByStuIdAndPwd(username, pwd) == null){
             resultTool.setCode(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeNum());
             resultTool.setMessage(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeMessage());
+        }else {
+            resultTool.setCode(ReturnMessage.WRONG_IDENTITY.getCodeNum());
+            resultTool.setMessage(ReturnMessage.WRONG_IDENTITY.getCodeMessage());
         }
         return resultTool;
     }
@@ -36,8 +43,9 @@ public class LoginController {
     @PostMapping("/loginOut")
     public ResultTool loginOut(){
         ResultTool resultTool = new ResultTool();
-        resultTool.setData(StpUtil.getLoginId());
-        StpUtil.logout();
+//        resultTool.setData(StpUtil.getLoginId());
+        String tokenValue = StpUtil.getTokenValue();
+        StpUtil.logoutByTokenValue(tokenValue);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
