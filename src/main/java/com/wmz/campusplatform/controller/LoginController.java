@@ -43,7 +43,6 @@ public class LoginController {
     @PostMapping("/loginOut")
     public ResultTool loginOut(){
         ResultTool resultTool = new ResultTool();
-//        resultTool.setData(StpUtil.getLoginId());
         String tokenValue = StpUtil.getTokenValue();
         StpUtil.logoutByTokenValue(tokenValue);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());

@@ -5,7 +5,9 @@ public enum ReturnMessage {
 
     WRONG_USERNAME_OR_PASSWORD(401, "用户名或密码错误"),
 
-    WRONG_IDENTITY(402, "身份选择错误");
+    WRONG_IDENTITY(402, "身份选择错误"),
+
+    NOT_LOGIN(403, "未登陆");
 
     private int codeNum;
 
