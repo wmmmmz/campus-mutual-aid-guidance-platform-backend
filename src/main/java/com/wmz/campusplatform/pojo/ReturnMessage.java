@@ -7,7 +7,9 @@ public enum ReturnMessage {
 
     WRONG_IDENTITY(402, "身份选择错误"),
 
-    NOT_LOGIN(403, "未登陆");
+    NOT_LOGIN(403, "未登陆"),
+
+    NO_USER(405, "用户不存在");
 
     private int codeNum;
 

@@ -1,23 +1,13 @@
-package com.wmz.campusplatform.pojo;
+package com.wmz.campusplatform.details;
 
-import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-import javax.persistence.*;
-
-@Entity
-@Table(name = "user")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
+public class UserDetails {
     private String stuId;
 
     private String pwd;
@@ -34,8 +24,5 @@ public class User {
 
     private String description;
 
-    private String interviewStatus;
-
-    private String imgUrl;
-
+    private String saTokenValue;
 }
