@@ -2,16 +2,13 @@ package com.wmz.campusplatform.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.wmz.campusplatform.convert.UserDetailsConvert;
-import com.wmz.campusplatform.handler.MongoDBHelper;
 import com.wmz.campusplatform.pojo.Img;
 import com.wmz.campusplatform.pojo.ResultTool;
 import com.wmz.campusplatform.pojo.User;
 import com.wmz.campusplatform.pojo.ReturnMessage;
 import com.wmz.campusplatform.repository.UserRepository;
-import com.wmz.campusplatform.utils.FileUtils;
+import com.wmz.campusplatform.service.MongoDBService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +26,7 @@ public class LoginController {
     private UserDetailsConvert userDetailsConvert;
 
     @Autowired
-    private MongoDBHelper mongoDBHelper;
+    private MongoDBService mongoDBService;
 
     @PostMapping("/login")
     public ResultTool login(@RequestBody Map<String, String> map){
@@ -42,10 +39,14 @@ public class LoginController {
             StpUtil.login(user.getId());
             resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
             resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-            Criteria imgUrl = Criteria.where("imgUrl").is(user.getImgUrl());
-            Query query = new Query(imgUrl);
-            List<Img> imgs = mongoDBHelper.find(query, Img.class);
-            resultTool.setData(userDetailsConvert.userConvert(user, StpUtil.getTokenValue(), Base64.getEncoder().encodeToString(imgs.get(0).getImgFile())));
+            byte[] imgFile;
+            List<Img> imgListByImgUrl = mongoDBService.getImgListByImgUrl(user.getImgUrl());
+            if(imgListByImgUrl.size() == 0){
+                imgFile = mongoDBService.getImgListByImgUrl("default").get(0).getImgFile();
+            }else{
+                imgFile = imgListByImgUrl.get(0).getImgFile();
+            }
+            resultTool.setData(userDetailsConvert.userConvert(user, StpUtil.getTokenValue(), Base64.getEncoder().encodeToString(imgFile)));
         }else if (userRepository.findByStuIdAndPwd(username, DigestUtils.md5DigestAsHex(pwd.getBytes())) == null){
             resultTool.setCode(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeNum());
             resultTool.setMessage(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeMessage());
