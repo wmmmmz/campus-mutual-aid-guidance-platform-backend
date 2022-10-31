@@ -8,10 +8,9 @@ import com.wmz.campusplatform.pojo.ReturnMessage;
 import com.wmz.campusplatform.pojo.User;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.service.FileUploadService;
-import lombok.extern.java.Log;
+import com.wmz.campusplatform.service.MongoDBService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -31,10 +29,10 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired
-    private FileUploadService fileUploadService;
+    private MongoDBHelper mongoDBHelper;
 
     @Autowired
-    private MongoDBHelper mongoDBHelper;
+    private MongoDBService mongoDBService;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -108,9 +106,7 @@ public class UserController {
             user1.setImgUrl(imgUrl);
             userRepository.updateImgUrl(user1.getImgUrl(), user1.getStuId(), user1.getRole());
             String[] split = userDetails.getImgBase64().split(",");
-            Criteria imgUrlCriteria = Criteria.where("imgUrl").is(imgUrl);
-            Query query = new Query(imgUrlCriteria);
-            List<Img> img = mongoDBHelper.find(query, Img.class);
+            List<Img> img = mongoDBService.getImgListByImgUrl(imgUrl);
             if (img.size() != 0){
                 for (Img img1 : img) {
                     mongoTemplate.remove(img1);
