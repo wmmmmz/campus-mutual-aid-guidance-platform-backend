@@ -25,4 +25,6 @@ public class UserDetails {
     private String description;
 
     private String saTokenValue;
+
+    private String imgBase64;
 }
