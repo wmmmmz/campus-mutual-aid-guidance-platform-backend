@@ -7,13 +7,10 @@ import com.wmz.campusplatform.pojo.ResultTool;
 import com.wmz.campusplatform.pojo.ReturnMessage;
 import com.wmz.campusplatform.pojo.User;
 import com.wmz.campusplatform.repository.UserRepository;
-import com.wmz.campusplatform.service.FileUploadService;
 import com.wmz.campusplatform.service.MongoDBService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
