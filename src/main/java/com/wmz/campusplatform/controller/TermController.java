@@ -123,4 +123,19 @@ public class TermController {
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
     }
+
+    @GetMapping("/getTermToday")
+    public ResultTool getTermToday(){
+        ResultTool resultTool = new ResultTool();
+        Term termByDate = termRepository.findTermByDate(new Date());
+        if (termByDate != null){
+            resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+            resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+            resultTool.setData(termByDate.getTerm());
+        }else {
+            resultTool.setCode(ReturnMessage.TERM_UNEXISTED.getCodeNum());
+            resultTool.setMessage(ReturnMessage.TERM_UNEXISTED.getCodeMessage());
+        }
+        return resultTool;
+    }
 }

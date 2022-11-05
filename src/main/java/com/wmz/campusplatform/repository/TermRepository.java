@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,4 +25,7 @@ public interface TermRepository extends JpaRepository<Term, Integer> {
 
     @Transactional
     void deleteByTerm(String term);
+
+    @Query(nativeQuery = true, value = "select * from term where date(:date) between term.start_time AND term.end_time")
+    Term findTermByDate(Date date);
 }

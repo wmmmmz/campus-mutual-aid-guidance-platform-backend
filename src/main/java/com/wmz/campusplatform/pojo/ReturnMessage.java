@@ -15,8 +15,9 @@ public enum ReturnMessage {
 
     NULL_TERM_NAME(407, "学期名不能为空"),
 
-    NULL_TERM_TIME(408, "学期始末时间不能为空");
+    NULL_TERM_TIME(408, "学期始末时间不能为空"),
 
+    TERM_UNEXISTED(409, "学期不存在");
     private int codeNum;
 
     private String codeMessage;
