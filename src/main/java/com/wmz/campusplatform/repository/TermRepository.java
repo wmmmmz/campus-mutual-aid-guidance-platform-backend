@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,10 @@ public interface TermRepository extends JpaRepository<Term, Integer> {
             "FROM term \n" +
             "left JOIN course on term.id = course.term_id \n" +
             "left JOIN class on class.course_id = course.id AND class.status = 'SUCCESS'\n" +
+            "WHERE term.term like CONCAT('%' ,ifNull(:query,'') ,'%') OR term.start_time like CONCAT('%' ,ifNull(:query,'') ,'%') OR term.end_time  like CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
             "GROUP BY term.id ")
-    List<Map<String, Object>> findTermList();
+    List<Map<String, Object>> findTermList(String query);
 
+    @Transactional
+    void deleteByTerm(String term);
 }

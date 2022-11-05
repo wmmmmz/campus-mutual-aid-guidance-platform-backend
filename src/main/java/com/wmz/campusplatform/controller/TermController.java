@@ -4,6 +4,7 @@ import com.wmz.campusplatform.convert.TermDetailsConvert;
 import com.wmz.campusplatform.details.TermDetails;
 import com.wmz.campusplatform.pojo.ResultTool;
 import com.wmz.campusplatform.pojo.ReturnMessage;
+import com.wmz.campusplatform.pojo.Term;
 import com.wmz.campusplatform.repository.TermRepository;
 import com.wmz.campusplatform.utils.StringUtils;
 import io.swagger.models.auth.In;
@@ -53,11 +54,33 @@ public class TermController {
         return resultTool;
     }
 
+    @PostMapping("/updateTerm")
+    public ResultTool updateTerm(@RequestBody TermDetails termDetails){
+        ResultTool resultTool = new ResultTool();
+        if (termDetails.getDateList() == null){
+            resultTool.setCode(ReturnMessage.NULL_TERM_TIME.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_TERM_TIME.getCodeMessage());
+            return resultTool;
+        }
+        if (StringUtils.isEmpty(termDetails.getName())){
+            resultTool.setCode(ReturnMessage.NULL_TERM_NAME.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_TERM_NAME.getCodeMessage());
+            return resultTool;
+        }
+        Term term = termRepository.findByTerm(termDetails.getName());
+        term.setStartTime(termDetails.getDateList().get(0));
+        term.setEndTime(termDetails.getDateList().get(1));
+        termRepository.save(term);
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
     @GetMapping("/getTermDataList")
-    public ResultTool getTermDataList(){
+    public ResultTool getTermDataList(@RequestParam(required = false) String query){
         ResultTool resultTool = new ResultTool();
         List<TermDetails> dataList = new ArrayList<>();
-        List<Map<String, Object>> termList = termRepository.findTermList();
+        List<Map<String, Object>> termList = termRepository.findTermList(query);
         for (Map<String, Object> termStatisticsDetails : termList) {
             Date startTime = null, endTime = null;
             TermDetails termDetails = new TermDetails();
@@ -89,6 +112,15 @@ public class TermController {
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         resultTool.setData(dataList);
+        return resultTool;
+    }
+
+    @PostMapping("/deleteTerm")
+    public ResultTool deleteTerm(@RequestBody Term term){
+        ResultTool resultTool = new ResultTool();
+        termRepository.deleteByTerm(term.getTerm());
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
     }
 }
