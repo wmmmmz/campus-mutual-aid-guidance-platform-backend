@@ -9,7 +9,13 @@ public enum ReturnMessage {
 
     NOT_LOGIN(403, "未登陆"),
 
-    NO_USER(405, "用户不存在");
+    NO_USER(405, "用户不存在"),
+
+    EXISTED_TERM(406, "学期已存在"),
+
+    NULL_TERM_NAME(407, "学期名不能为空"),
+
+    NULL_TERM_TIME(408, "学期始末时间不能为空");
 
     private int codeNum;
 
