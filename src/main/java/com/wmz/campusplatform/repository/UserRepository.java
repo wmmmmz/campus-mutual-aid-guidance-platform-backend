@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
 import java.beans.Transient;
+import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
@@ -22,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "SET `user`.img_url = :imgUrl\n" +
             "WHERE `user`.stu_id = :stuId AND `user`.`role` = :role")
     void updateImgUrl(String imgUrl, String stuId, String role);
+
+    List<User> findByRoleIn(List<String> roleList);
 }

@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "user")
@@ -37,5 +39,9 @@ public class User {
     private String interviewStatus;
 
     private String imgUrl;
+
+    @JsonIgnoreProperties(value = "receiverList")
+    @ManyToMany(mappedBy = "receiverList")
+    private List<NotifyAnnounce> notifyAnnounceList;
 
 }
