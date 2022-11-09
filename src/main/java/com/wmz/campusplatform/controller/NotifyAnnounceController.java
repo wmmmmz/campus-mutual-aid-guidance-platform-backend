@@ -9,11 +9,13 @@ import com.wmz.campusplatform.pojo.User;
 import com.wmz.campusplatform.repository.NotifyAnnounceRepository;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.utils.StringUtils;
+import io.swagger.models.auth.In;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -94,6 +96,54 @@ public class NotifyAnnounceController {
         ResultTool resultTool = new ResultTool();
         notifyAnnounceRepository.deleteByTitleAndContentAndCreateTime(notifyAnnounceDetails.getTitle(),
                 notifyAnnounceDetails.getContent(), notifyAnnounceDetails.getCreateTime());
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @PostMapping("/changeStatus")
+    public ResultTool changeStatus(@RequestBody Map<String, Object> map){
+        ResultTool resultTool = new ResultTool();
+        Integer notifyId = null;
+        if (map.containsKey("title")){
+            String title = (String) map.get("title");
+            String content = (String) map.get("content");
+            String createTimeString = (String) map.get("createTime");
+            Date createTime;
+            SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
+            try {
+                createTime =  formatter.parse(createTimeString);
+            } catch (ParseException e) {
+                log.error("string to date error");
+                throw new RuntimeException(e);
+            }
+            List<NotifyAnnounce> notifyList = notifyAnnounceRepository.findNotifyAnnounceByTitleAndContentAndCreateTime(title, content, createTime);
+            notifyId = notifyList.get(0).getId();
+        }
+        String status = (String) map.get("status");
+        String stuId = (String) map.get("stuId");
+        String role = (String) map.get("role");
+        User user = userRepository.findByStuIdAndRole(stuId, role);
+        Integer userId = user.getId();
+        Boolean readAll = (Boolean) map.get("readAll");
+        if (readAll){
+            notifyAnnounceRepository.changeAllStatus(userId, status);
+        }else {
+            notifyAnnounceRepository.changeStatus(notifyId, userId, status);
+        }
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @PostMapping("/clearRecycle")
+    public ResultTool clearRecycle(@RequestBody Map<String, String> map){
+        ResultTool resultTool = new ResultTool();
+        String stuId = map.get("stuId");
+        String role = map.get("role");
+        User user = userRepository.findByStuIdAndRole(stuId, role);
+        Integer userId = user.getId();
+        notifyAnnounceRepository.deleteRecycleNotify(userId);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;

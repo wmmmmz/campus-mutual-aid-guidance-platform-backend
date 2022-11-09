@@ -1,11 +1,10 @@
 package com.wmz.campusplatform.controller;
 
+import com.wmz.campusplatform.details.NotifyAnnounceWithStatus;
 import com.wmz.campusplatform.details.UserDetails;
 import com.wmz.campusplatform.handler.MongoDBHelper;
-import com.wmz.campusplatform.pojo.Img;
-import com.wmz.campusplatform.pojo.ResultTool;
-import com.wmz.campusplatform.pojo.ReturnMessage;
-import com.wmz.campusplatform.pojo.User;
+import com.wmz.campusplatform.pojo.*;
+import com.wmz.campusplatform.repository.NotifyAnnounceRepository;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.service.MongoDBService;
 import lombok.extern.log4j.Log4j2;
@@ -14,8 +13,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Base64;
-import java.util.List;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
@@ -33,6 +33,9 @@ public class UserController {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private NotifyAnnounceRepository notifyAnnounceRepository;
 
     @PostMapping("/updateOrSave")
     public ResultTool updateOrSaveUser(@RequestBody User user){
@@ -112,6 +115,38 @@ public class UserController {
             mongoDBHelper.save(new Img(mongoDBHelper.findAll(Img.class).size() + 1, imgUrl, Base64.getDecoder().decode(split[1])));
             resultTool.setData(userDetails);
         }
+        return resultTool;
+    }
+
+    @GetMapping("/getNotifyList")
+    public ResultTool getNotifyList(@RequestParam String stuId, String role){
+        ResultTool resultTool = new ResultTool();
+        User user = userRepository.findByStuIdAndRole(stuId, role);
+        List<Map<String, Object>> notifyOfUserWithStatus = notifyAnnounceRepository.findNotifyOfUserWithStatus(user.getId());
+        List<NotifyAnnounceWithStatus> notifyAnnounceWithStatuses = new ArrayList<>();
+        for (Map<String, Object> ofUserWithStatus : notifyOfUserWithStatus) {
+            NotifyAnnounceWithStatus notifyAnnounceWithStatus = new NotifyAnnounceWithStatus();
+            for(Map.Entry<String, Object> m : ofUserWithStatus.entrySet()){
+                switch (m.getKey()){
+                    case "status":
+                        notifyAnnounceWithStatus.setStatus((String) m.getValue());
+                        break;
+                    case "title":
+                        notifyAnnounceWithStatus.setTitle((String) m.getValue());
+                        break;
+                    case "content":
+                        notifyAnnounceWithStatus.setContent((String) m.getValue());
+                        break;
+                    case "createTime":
+                        notifyAnnounceWithStatus.setCreateTime((Date) m.getValue());
+                }
+            }
+            notifyAnnounceWithStatuses.add(notifyAnnounceWithStatus);
+        }
+        Map<String, List<NotifyAnnounceWithStatus>> collect = notifyAnnounceWithStatuses.stream().collect(Collectors.groupingBy(data -> data.getStatus()));
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        resultTool.setData(collect);
         return resultTool;
     }
 }
