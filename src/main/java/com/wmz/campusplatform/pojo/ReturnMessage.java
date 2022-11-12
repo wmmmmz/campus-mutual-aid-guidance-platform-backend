@@ -23,7 +23,10 @@ public enum ReturnMessage {
 
     NULL_NOTIFY_CONTENT(411, "通知内容不能为空"),
 
-    NULL_NOTIFY_RECEIVER(412, "通知对象不能为空");
+    NULL_NOTIFY_RECEIVER(412, "通知对象不能为空"),
+
+    NULL_COURSE_NAME(413, "课程名不能为空");
+
     private int codeNum;
 
     private String codeMessage;

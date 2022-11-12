@@ -5,6 +5,7 @@ import com.wmz.campusplatform.details.TermDetails;
 import com.wmz.campusplatform.pojo.ResultTool;
 import com.wmz.campusplatform.pojo.ReturnMessage;
 import com.wmz.campusplatform.pojo.Term;
+import com.wmz.campusplatform.pojo.TreeSelectData;
 import com.wmz.campusplatform.repository.TermRepository;
 import com.wmz.campusplatform.utils.StringUtils;
 import io.swagger.models.auth.In;
@@ -13,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/term")
@@ -136,6 +134,20 @@ public class TermController {
             resultTool.setCode(ReturnMessage.TERM_UNEXISTED.getCodeNum());
             resultTool.setMessage(ReturnMessage.TERM_UNEXISTED.getCodeMessage());
         }
+        return resultTool;
+    }
+
+    @GetMapping("/getAllTerm")
+    public ResultTool getAllTerm(){
+        ResultTool resultTool = new ResultTool();
+        List<Term> termList = termRepository.findAll();
+        List<TreeSelectData> termNameList = new ArrayList<>();
+        for (Term term : termList) {
+            termNameList.add(new TreeSelectData(term.getTerm(), term.getTerm()));
+        }
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        resultTool.setData(termNameList);
         return resultTool;
     }
 }
