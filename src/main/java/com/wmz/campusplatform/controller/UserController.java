@@ -112,7 +112,7 @@ public class UserController {
                     mongoTemplate.remove(img1);
                 }
             }
-            mongoDBHelper.save(new Img(mongoDBHelper.findAll(Img.class).size() + 1, imgUrl, Base64.getDecoder().decode(split[1])));
+            mongoDBHelper.save(new Img(mongoDBHelper.findAll(Img.class).size() + 1, imgUrl, split[0], Base64.getDecoder().decode(split[1])));
             resultTool.setData(userDetails);
         }
         return resultTool;

@@ -40,13 +40,15 @@ public class LoginController {
             resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
             resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
             byte[] imgFile;
+            String imgPre = null;
             List<Img> imgListByImgUrl = mongoDBService.getImgListByImgUrl(user.getImgUrl());
             if(imgListByImgUrl.size() == 0){
                 imgFile = mongoDBService.getImgListByImgUrl("default").get(0).getImgFile();
             }else{
                 imgFile = imgListByImgUrl.get(0).getImgFile();
+                imgPre = imgListByImgUrl.get(0).getImgPre();
             }
-            resultTool.setData(userDetailsConvert.userConvert(user, StpUtil.getTokenValue(), Base64.getEncoder().encodeToString(imgFile)));
+            resultTool.setData(userDetailsConvert.userConvert(user, StpUtil.getTokenValue(), imgPre, Base64.getEncoder().encodeToString(imgFile)));
         }else if (userRepository.findByStuIdAndPwd(username, DigestUtils.md5DigestAsHex(pwd.getBytes())) == null){
             resultTool.setCode(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeNum());
             resultTool.setMessage(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeMessage());

@@ -26,7 +26,7 @@ public class MongoDBHelperTest{
 
     @Test
     public void mangoDBTest() throws IOException {
-        Img img = new Img(1, "default", FileUtils.fileToByte(new File("/Users/mengzhe/Pictures/photo.jpg")));
+        Img img = new Img(1, "default", "data:image/png;base64", FileUtils.fileToByte(new File("/Users/mengzhe/Pictures/photo.jpg")));
         mongoDBHelper.save(img);
     }
 

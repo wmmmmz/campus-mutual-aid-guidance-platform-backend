@@ -21,6 +21,8 @@ public class Img{
 
     private String imgUrl;
 
+    private String imgPre;
+
     private byte[] imgFile;
 
 }
