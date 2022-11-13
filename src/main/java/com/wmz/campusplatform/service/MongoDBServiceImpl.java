@@ -1,6 +1,7 @@
 package com.wmz.campusplatform.service;
 
 import com.wmz.campusplatform.handler.MongoDBHelper;
+import com.wmz.campusplatform.pojo.Carousel;
 import com.wmz.campusplatform.pojo.Img;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,5 +21,15 @@ public class MongoDBServiceImpl implements MongoDBService{
         Criteria imgUrlCriteria = Criteria.where("imgUrl").is(imgUrl);
         Query query = new Query(imgUrlCriteria);
         return mongoDBHelper.find(query, Img.class);
+    }
+
+    @Override
+    public List<Carousel> getCarouselByThemeAndImgFile(String theme, byte[] imgFile) {
+        Criteria themeCriteria = Criteria.where("theme").is(theme);
+        Criteria imgFileCriteria = Criteria.where("imgFile").is(imgFile);
+        Query query = new Query();
+        query.addCriteria(themeCriteria);
+        query.addCriteria(imgFileCriteria);
+        return mongoDBHelper.find(query, Carousel.class);
     }
 }

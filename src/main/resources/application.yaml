@@ -1,5 +1,7 @@
 server:
   port: 8084
+  tomcat:
+    max-http-header-size: 102400000
 
 ############## Sa-Token 配置 ##############
 sa-token:
