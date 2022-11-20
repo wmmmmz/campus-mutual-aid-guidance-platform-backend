@@ -38,4 +38,10 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             "LEFT JOIN term ON term.id = course.term_id\n" +
             "WHERE course.name = :courseName AND term.term  = :termName")
     void deleteCourse(String courseName, String termName);
+
+    @Query(nativeQuery = true, value = "SELECT c.id, c.name , c.term_id  \n" +
+            "FROM course c \n" +
+            "LEFT JOIN term t ON t.id = c.term_id \n" +
+            "WHERE t.term = :termName AND c.name = :courseName")
+    Course findByTermNameAndCourseName(String termName, String courseName);
 }

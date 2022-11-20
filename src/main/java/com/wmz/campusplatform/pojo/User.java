@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "user")
@@ -44,4 +45,6 @@ public class User {
     @ManyToMany(mappedBy = "receiverList")
     private List<NotifyAnnounce> notifyAnnounceList;
 
+    @ManyToMany(mappedBy = "studentList")
+    private List<Class> classList;
 }

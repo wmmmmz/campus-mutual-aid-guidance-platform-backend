@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     User findByStuIdAndPwd(String stuId, String pwd);
 
+    User findByNameAndRole(String name, String role);
+
     @Modifying
     @Transactional
     @Query(nativeQuery = true, value = "UPDATE `user`\n" +

@@ -1,10 +1,7 @@
 package com.wmz.campusplatform.controller;
 
 import com.wmz.campusplatform.details.CourseDetails;
-import com.wmz.campusplatform.pojo.Course;
-import com.wmz.campusplatform.pojo.ResultTool;
-import com.wmz.campusplatform.pojo.ReturnMessage;
-import com.wmz.campusplatform.pojo.Term;
+import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.CourseRepository;
 import com.wmz.campusplatform.repository.TermRepository;
 import com.wmz.campusplatform.utils.StringUtils;
@@ -97,6 +94,28 @@ public class CourseController {
         courseRepository.deleteCourse(courseName, termName);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @GetMapping("/getCourseByTerm")
+    public ResultTool getCourseByTerm(@RequestParam String termName){
+        ResultTool resultTool = new ResultTool();
+        if (StringUtils.isEmpty(termName)) {
+            Term termByDate = termRepository.findTermByDate(new Date());
+            if (termByDate == null) {
+                log.error("学期不存在");
+            } else {
+                termName = termByDate.getTerm();
+            }
+        }
+        List<TreeSelectData> treeSelectDataList = new ArrayList<>();
+        List<Map<String, Object>> courseDetailList = courseRepository.findCourseDetailList(null, termName);
+        for (Map<String, Object> courseDetail : courseDetailList) {
+            treeSelectDataList.add(new TreeSelectData((String)courseDetail.get("name"), (String)courseDetail.get("name")));
+        }
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        resultTool.setData(treeSelectDataList);
         return resultTool;
     }
 }

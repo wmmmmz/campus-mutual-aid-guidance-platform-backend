@@ -25,7 +25,17 @@ public enum ReturnMessage {
 
     NULL_NOTIFY_RECEIVER(412, "通知对象不能为空"),
 
-    NULL_COURSE_NAME(413, "课程名不能为空");
+    NULL_COURSE_NAME(413, "课程名不能为空"),
+
+    NULL_CLASS_TIME(414, "上课始末时间不能为空"),
+
+    NULL_CLASS_DAY(415, "课程日期不能为空"),
+
+    NULL_CLASS_FORM(416, "上课形式不能为空"),
+
+    NULL_CLASS_NAME(417, "班级名不能为空"),
+
+    EXISTED_CLASS(418, "本学期该班级已存在");
 
     private int codeNum;
 
