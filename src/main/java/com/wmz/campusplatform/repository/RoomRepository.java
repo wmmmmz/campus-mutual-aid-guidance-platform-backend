@@ -20,7 +20,7 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
             "LEFT JOIN class c ON c.room_id = r.id \n" +
             "LEFT JOIN course c2 ON c.course_id = c2.id \n" +
             "LEFT JOIN term t ON t.id = c2.term_id \n" +
-            "WHERE t.term = :termName AND c.day = :day\n" +
+            "WHERE t.term = :termName AND c.day = :day AND c.name != :className AND r.form != '线上'\n" +
             "AND (" +
             "((unix_timestamp(c.start_time) >= unix_timestamp(:startTime)) AND (unix_timestamp(c.start_time) <= unix_timestamp(:endTime)) " +
             "OR (unix_timestamp(c.end_time) >= unix_timestamp(:startTime)) AND (unix_timestamp(c.end_time) <= unix_timestamp(:endTime)))" +
@@ -28,5 +28,5 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
             "OR (  (unix_timestamp(c.start_time) <= unix_timestamp(:startTime)) AND (unix_timestamp(c.end_time) >= unix_timestamp(:endTime)) )" +
             ")\n" +
             ")")
-    List<Room> findFreeRoomByTermNameAndTime(String termName, String startTime, String endTime, String day);
+    List<Room> findFreeRoomByTermNameAndTime(String termName, String startTime, String endTime, String day, String className);
 }

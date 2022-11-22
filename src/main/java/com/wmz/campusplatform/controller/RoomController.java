@@ -32,7 +32,8 @@ public class RoomController {
     public ResultTool getFreeRoomByTerm(@RequestParam(required = false) String start
                                        ,@RequestParam(required = false) String end
                                        ,@RequestParam(required = false) String termName
-                                       ,@RequestParam(required = false) String day) throws ParseException {
+                                       ,@RequestParam(required = false) String day
+                                       ,@RequestParam(required = false) String className) throws ParseException {
         ResultTool resultTool = new ResultTool();
         List<Room> freeRoom = null;
         String startTime = "1970-01-01 ", endTime = "1970-01-01 ";
@@ -49,7 +50,7 @@ public class RoomController {
             }
         }
         if (startTime != null && endTime != null && !StringUtils.isEmpty(day))
-            freeRoom = roomRepository.findFreeRoomByTermNameAndTime(termName, startTime, endTime, day);
+            freeRoom = roomRepository.findFreeRoomByTermNameAndTime(termName, startTime, endTime, day, className);
         else
             freeRoom= roomRepository.findAll();
         List<TreeSelectData> roomData = new ArrayList<>();
