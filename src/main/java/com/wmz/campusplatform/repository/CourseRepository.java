@@ -17,7 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     @Query(nativeQuery = true, value = "SELECT c.name, COUNT(c2.id) as classCnt\n" +
             "FROM course c \n" +
             "LEFT JOIN term t ON t.id  = c.term_id \n" +
-            "LEFT JOIN class c2 ON c2.course_id  = c.id AND c2.status = 'SUCCESS' \n" +
+            "LEFT JOIN class c2 ON c2.course_id  = c.id AND c2.status = '已开班' \n" +
             "WHERE t.term  = :termName\n" +
             "AND (t.term like CONCAT('%' ,ifNull(:query,'') ,'%') OR c.name  like CONCAT('%' ,ifNull(:query,'') ,'%') )\n" +
             "GROUP BY c.name")

@@ -58,4 +58,11 @@ public class ClassDetails {
         this.studentCnt = studentCnt;
         this.status = status;
     }
+
+    public ClassDetails(String className, String courseName, String classroom, String day) {
+        this.className = className;
+        this.courseName = courseName;
+        this.classroom = classroom;
+        this.day = day;
+    }
 }

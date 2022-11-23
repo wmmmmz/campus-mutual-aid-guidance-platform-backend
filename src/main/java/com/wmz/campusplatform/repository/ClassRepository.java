@@ -32,4 +32,16 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             "LEFT JOIN term t ON c2.term_id = t.id \n" +
             "WHERE t.term = :termName AND c.name = :className")
     List<Class> findByTermNameAndClassName(String termName, String className);
+
+    @Query(nativeQuery = true, value = "SELECT  c.name as className, c2.name as courseName, c.day\n" +
+            ", c.start_time as startTime, c.end_time as endTime, room.room_name as roomName\n" +
+            "FROM class c \n" +
+            "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
+            "LEFT JOIN term t ON t.id = c2.term_id \n" +
+            "LEFT JOIN room ON c.room_id = room.id \n" +
+            "WHERE t.term = :termName AND c.status = :status\n" +
+            "AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
+            "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
+            "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
+    List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
 }

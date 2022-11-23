@@ -43,7 +43,11 @@ public class ClassController {
             return errorMessage;
         }
         Class aClass = classDetailsConvert.classDetailConvert(new Class(), classDetails);
-        aClass.setStatus(Status.IN_PROGRESS.getLabel());
+        if (aClass.getUser() == null){
+            aClass.setStatus(Status.ENROLL_TEACHER_IN_PROGRESS.getLabel());
+        }else {
+            aClass.setStatus(Status.ENROLL_TEACHER_FINISH.getLabel());
+        }
         classRepository.save(aClass);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
@@ -60,6 +64,11 @@ public class ClassController {
         String termName = termService.getTermVerified(classDetails.getTermName());
         Class originalClass = classRepository.findByTermNameAndClassName(termName, classDetails.getClassName()).get(0);
         Class aClass = classDetailsConvert.classDetailConvert(originalClass, classDetails);
+        if (aClass.getUser() == null){
+            aClass.setStatus(Status.ENROLL_TEACHER_IN_PROGRESS.getLabel());
+        }else {
+            aClass.setStatus(Status.ENROLL_TEACHER_FINISH.getLabel());
+        }
         classRepository.save(aClass);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
@@ -67,7 +76,8 @@ public class ClassController {
     }
 
     @GetMapping("/getClassDataList")
-    public ResultTool getClassDataList(@RequestParam(required = false) String query, String termName){
+    public ResultTool getClassDataList(@RequestParam(required = false) String query, String termName
+                        ,@RequestParam(required = false) String status){
         ResultTool resultTool = new ResultTool();
         if (StringUtils.isEmpty(termName)) {
             Term termByDate = termRepository.findTermByDate(new Date());
@@ -114,6 +124,30 @@ public class ClassController {
         classRepository.delete(aClass.get(0));
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @GetMapping("/getClassByStatus")
+    public ResultTool getClassByStatus(@RequestParam(required = false) String query, String termName, String status){
+        ResultTool resultTool = new ResultTool();
+        termName = termService.getTermVerified(termName);
+        List<Map<String, Object>> classList = classRepository.findByStatusAndTermName(query, termName, status);
+        List<ClassDetails> classDetailsList = new ArrayList<>();
+        for (Map<String, Object> classData : classList) {
+            ClassDetails classDetails = new ClassDetails(
+                    (String) classData.get("className"),
+                    (String) classData.get("courseName"),
+                    (String)classData.get("roomName"),
+                    (String) classData.get("day"));
+            List<Date> dateList = new ArrayList<>();
+            dateList.add((Date) classData.get("startTime"));
+            dateList.add((Date) classData.get("endTime"));
+            classDetails.setDateList(dateList);
+            classDetailsList.add(classDetails);
+        }
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        resultTool.setData(classDetailsList);
         return resultTool;
     }
 

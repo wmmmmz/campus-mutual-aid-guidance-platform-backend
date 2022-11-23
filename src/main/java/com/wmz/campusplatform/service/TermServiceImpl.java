@@ -18,7 +18,7 @@ public class TermServiceImpl implements TermService{
 
     @Override
     public String getTermVerified(String termName) {
-        if (StringUtils.isEmpty(termName)) return termName;
+        if (!StringUtils.isEmpty(termName)) return termName;
         Term termByDate = termRepository.findTermByDate(new Date());
         if (termByDate == null) {
             log.error("学期不存在");
