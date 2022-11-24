@@ -2,8 +2,11 @@ package com.wmz.campusplatform.repository;
 
 import com.wmz.campusplatform.pojo.Class;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,4 +47,13 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
     List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "INSERT INTO teach_enroll (user_id, class_id, enroll_date)\n" +
+            "VALUES (:userId, :classId, :enrollDate)")
+    void saveTeachEnroll(Integer userId, Integer classId, Date enrollDate);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM TEACH_ENROLL WHERE user_id = :userId AND class_id = :classId")
+    List<Map<String, Object>> findTeachEnroll(Integer userId, Integer classId);
 }

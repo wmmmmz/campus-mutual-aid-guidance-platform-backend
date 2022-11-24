@@ -35,7 +35,9 @@ public enum ReturnMessage {
 
     NULL_CLASS_NAME(417, "班级名不能为空"),
 
-    EXISTED_CLASS(418, "本学期该班级已存在");
+    EXISTED_CLASS(418, "本学期该班级已存在"),
+
+    EXIST_TEACH_ENROLL(419, "请勿重复报名");
 
     private int codeNum;
 

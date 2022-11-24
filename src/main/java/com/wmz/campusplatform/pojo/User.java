@@ -41,10 +41,16 @@ public class User {
 
     private String imgUrl;
 
+    //用户收到的通知列表
     @JsonIgnoreProperties(value = "receiverList")
     @ManyToMany(mappedBy = "receiverList")
     private List<NotifyAnnounce> notifyAnnounceList;
 
+    //用户报名上课的class列表
     @ManyToMany(mappedBy = "studentList")
     private List<Class> classList;
+
+    //用户曾报名授课的class列表
+    @ManyToMany(mappedBy = "interviewList")
+    private List<Class> teachEnrollClassList;
 }

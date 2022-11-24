@@ -40,12 +40,29 @@ public class Class {
 
     private String status;
 
+    //class的学生列表
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "student_enroll_class",
             joinColumns = @JoinColumn(name = "class_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> studentList;
+
+    //class的导生报名列表
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "teacher_enroll",
+            joinColumns = @JoinColumn(name = "class_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> interviewList;
+
+    public List<User> getInterviewList() {
+        return interviewList;
+    }
+
+    public void setInterviewList(List<User> interviewList) {
+        this.interviewList = interviewList;
+    }
 
     public Class() {
     }
@@ -152,6 +169,7 @@ public class Class {
                 ", endTime=" + endTime +
                 ", status='" + status + '\'' +
                 ", studentList=" + studentList +
+                ", interviewList=" + interviewList +
                 '}';
     }
 }
