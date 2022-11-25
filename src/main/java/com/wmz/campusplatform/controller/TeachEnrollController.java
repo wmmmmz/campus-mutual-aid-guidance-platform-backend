@@ -11,6 +11,7 @@ import com.wmz.campusplatform.service.TermService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -66,11 +67,20 @@ public class TeachEnrollController {
                     (Date) teachData.get("startTime"),
                     (Date) teachData.get("endTime"),
                     (Date) teachData.get("enrollDate"),
-                    (Date) teachData.get("interviewDate"),
                     (Date) teachData.get("successDate"),
                     (String) teachData.get("interviewLink"),
                     (String) teachData.get("status")
             );
+            String interviewDate = "";
+            if (teachData.get("interview_start_date") != null && teachData.get("interview_end_date") != null){
+                Date interviewStartTime = (Date) teachData.get("interview_start_date");
+                Date interviewEndTime = (Date) teachData.get("interview_end_date");
+                SimpleDateFormat formatterStart = new SimpleDateFormat( "yyyy-MM-dd HH:mm");
+                SimpleDateFormat formatterEnd = new SimpleDateFormat( "HH:mm");
+                interviewDate = formatterStart.format(interviewStartTime) + " - " + formatterEnd.format(interviewEndTime);
+            }else {
+                interviewDate = "";
+            }
             String status = (String) teachData.get("status");
             if (Status.ENROLLED.getLabel().equals(status)){
                 teachEnrollDetail.setActive(1);
@@ -81,6 +91,7 @@ public class TeachEnrollController {
             }else if (Status.TERMINATION.getLabel().equals(status)){
                 teachEnrollDetail.setActive(-1);
             }
+            teachEnrollDetail.setInterviewDate(interviewDate);
             teachEnrollDetails.add(teachEnrollDetail);
         }
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());

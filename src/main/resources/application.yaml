@@ -24,7 +24,7 @@ spring:
   datasource:
     username: 'root'
     password: 'Wmz2001072522833.'
-    url: jdbc:mysql://localhost:3306/CampusPlatform?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/CampusPlatform?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
 
     #SpringBoot默认是不注入这些的，需要自己绑定
@@ -61,6 +61,10 @@ spring:
   data:
     mongodb:
       uri: mongodb://wmz:010725@127.0.0.1:27017/admin
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
 
 web:
   upload: /Users/mengzhe/Pictures
