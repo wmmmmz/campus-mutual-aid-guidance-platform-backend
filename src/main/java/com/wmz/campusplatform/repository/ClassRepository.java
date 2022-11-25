@@ -56,4 +56,22 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
 
     @Query(nativeQuery = true, value = "SELECT * FROM TEACH_ENROLL WHERE user_id = :userId AND class_id = :classId")
     List<Map<String, Object>> findTeachEnroll(Integer userId, Integer classId);
+
+    @Query(nativeQuery = true, value = "SELECT c.name AS className, c2.name AS courseName, c.day, c.start_time AS startTime\n" +
+            "       , c.end_time AS endTime, room.room_name AS classroom, te.status\n" +
+            "       , te.enroll_date AS enrollDate, te.interview_date AS interviewDate\n" +
+            "       , te.success_date AS successDate, te.interview_link AS interview_link \n" +
+            "FROM teach_enroll te \n" +
+            "LEFT JOIN `user` u ON u.id = te.user_id \n" +
+            "LEFT JOIN class c ON c.id = class_id \n" +
+            "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
+            "LEFT JOIN term ON term.id = c2.term_id \n" +
+            "LEFT JOIN room ON room.id = c.room_id \n" +
+            "WHERE term.term = :termName AND u.stu_id = :stuId AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.enroll_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR te.interview_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.success_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
+            "OR te.status LIKE CONCAT('%' ,ifNull(:query,'') ,'%')) ")
+    List<Map<String, Object>> getTeachEnrollDataList(String query, String termName, String stuId);
 }
