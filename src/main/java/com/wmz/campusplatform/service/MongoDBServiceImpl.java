@@ -3,6 +3,7 @@ package com.wmz.campusplatform.service;
 import com.wmz.campusplatform.handler.MongoDBHelper;
 import com.wmz.campusplatform.pojo.Carousel;
 import com.wmz.campusplatform.pojo.Img;
+import com.wmz.campusplatform.pojo.UploadFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,5 +32,12 @@ public class MongoDBServiceImpl implements MongoDBService{
         query.addCriteria(themeCriteria);
         query.addCriteria(imgFileCriteria);
         return mongoDBHelper.find(query, Carousel.class);
+    }
+
+    @Override
+    public List<UploadFile> getFileByFileName(String fileName) {
+        Criteria fileNameCriteria = Criteria.where("fileName").is(fileName);
+        Query query = new Query(fileNameCriteria);
+        return mongoDBHelper.find(query, UploadFile.class);
     }
 }

@@ -50,9 +50,9 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
 
     @Modifying
     @Transactional
-    @Query(nativeQuery = true, value = "INSERT INTO teach_enroll (user_id, class_id, enroll_date)\n" +
-            "VALUES (:userId, :classId, :enrollDate)")
-    void saveTeachEnroll(Integer userId, Integer classId, Date enrollDate);
+    @Query(nativeQuery = true, value = "INSERT INTO teach_enroll (user_id, class_id, enroll_date, resume)\n" +
+            "VALUES (:userId, :classId, :enrollDate, :resumeName)")
+    void saveTeachEnroll(Integer userId, Integer classId, Date enrollDate, String resumeName);
 
     @Query(nativeQuery = true, value = "SELECT * FROM TEACH_ENROLL WHERE user_id = :userId AND class_id = :classId")
     List<Map<String, Object>> findTeachEnroll(Integer userId, Integer classId);
@@ -60,7 +60,7 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
     @Query(nativeQuery = true, value = "SELECT c.name AS className, c2.name AS courseName, c.day, c.start_time AS startTime\n" +
             "       , c.end_time AS endTime, room.room_name AS classroom, te.status\n" +
             "       , te.enroll_date AS enrollDate, te.interview_start_date, te.interview_end_date\n" +
-            "       , te.success_date AS successDate, te.interview_link AS interview_link \n" +
+            "       , te.success_date AS successDate, te.interview_link AS interviewLink, te.resume \n" +
             "FROM teach_enroll te \n" +
             "LEFT JOIN `user` u ON u.id = te.user_id \n" +
             "LEFT JOIN class c ON c.id = class_id \n" +

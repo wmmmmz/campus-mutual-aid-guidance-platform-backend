@@ -3,6 +3,7 @@ package com.wmz.campusplatform.handler;
 import com.mongodb.BasicDBObject;
 import com.wmz.campusplatform.pojo.Carousel;
 import com.wmz.campusplatform.pojo.Img;
+import com.wmz.campusplatform.pojo.UploadFile;
 import com.wmz.campusplatform.utils.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,9 +46,14 @@ public class MongoDBHelperTest{
 //        for (User user : list) {
 //            System.out.println("id=" + user.getId() + ",name=" + user.getName());
 //        }
-        List<Carousel> all = mongoDBHelper.findAll(Carousel.class);
-        for (Carousel carousel : all) {
-            System.out.println(carousel.getTheme());
+//        List<Carousel> all = mongoDBHelper.findAll(Carousel.class);
+//        for (Carousel carousel : all) {
+//            System.out.println(carousel.getTheme());
+//        }
+        List<UploadFile> files = mongoDBHelper.findAll(UploadFile.class);
+        for (UploadFile file : files) {
+            System.out.println(file.getFileName());
+            System.out.println(Base64.getEncoder().encodeToString(file.getFile()));
         }
 
     }

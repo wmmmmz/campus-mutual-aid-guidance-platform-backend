@@ -42,7 +42,9 @@ public class TeachEnrollDetails {
 
     private String status;
 
-    public TeachEnrollDetails(String className, String courseName, String classroom, String day, Date startTime, Date endTime, Date enrollDate, Date successDate, String interviewLink, String status) {
+    private String resumeUrl;
+
+    public TeachEnrollDetails(String className, String courseName, String classroom, String day, Date startTime, Date endTime, Date enrollDate, Date successDate, String interviewLink, String status, String resumeUrl) {
         this.className = className;
         this.courseName = courseName;
         this.classroom = classroom;
@@ -53,5 +55,6 @@ public class TeachEnrollDetails {
         this.successDate = successDate;
         this.interviewLink = interviewLink;
         this.status = status;
+        this.resumeUrl = resumeUrl;
     }
 }
