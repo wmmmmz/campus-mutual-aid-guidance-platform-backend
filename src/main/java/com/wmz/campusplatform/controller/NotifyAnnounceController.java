@@ -112,7 +112,10 @@ public class NotifyAnnounceController {
             Date createTime;
             SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss");
             try {
-                createTime =  formatter.parse(createTimeString);
+                if (!StringUtils.isEmpty(createTimeString))
+                    createTime =  formatter.parse(createTimeString);
+                else
+                    createTime = null;
             } catch (ParseException e) {
                 log.error("string to date error");
                 throw new RuntimeException(e);

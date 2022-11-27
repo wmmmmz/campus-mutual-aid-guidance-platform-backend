@@ -51,7 +51,7 @@ public class Class {
     //class的导生报名列表
     @ManyToMany
     @JsonIgnore
-    @JoinTable(name = "teacher_enroll",
+    @JoinTable(name = "teach_enroll",
             joinColumns = @JoinColumn(name = "class_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> interviewList;

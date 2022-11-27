@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
+    List<User> findByRole(String role);
+
     User findByStuIdAndPwdAndRole(String stuId, String pwd, String role);
 
     User findByStuIdAndRole(String stuId, String role);
@@ -27,4 +29,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     void updateImgUrl(String imgUrl, String stuId, String role);
 
     List<User> findByRoleIn(List<String> roleList);
+
+    List<User> findByName(String username);
 }

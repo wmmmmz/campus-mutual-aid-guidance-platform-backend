@@ -13,6 +13,14 @@ import java.util.Date;
 @NoArgsConstructor
 public class TeachEnrollDetails {
 
+    private String studentName;
+
+    private String studentClass;
+
+    private String studentTel;
+
+    private String studentWx;
+
     private String className;
 
     private String courseName;
@@ -44,7 +52,20 @@ public class TeachEnrollDetails {
 
     private String resumeUrl;
 
-    public TeachEnrollDetails(String className, String courseName, String classroom, String day, Date startTime, Date endTime, Date enrollDate, Date successDate, String interviewLink, String status, String resumeUrl) {
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date interviewStartTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date interviewEndTime;
+
+    public TeachEnrollDetails(String studentName, String studentClass, String studentTel, String studentWx
+            , String className, String courseName, String classroom, String day, Date startTime, Date endTime
+            , Date enrollDate, Date successDate, String interviewLink, String status, String resumeUrl
+            , Date interviewStartTime, Date interviewEndTime) {
+        this.studentName = studentName;
+        this.studentClass = studentClass;
+        this.studentTel = studentTel;
+        this.studentWx = studentWx;
         this.className = className;
         this.courseName = courseName;
         this.classroom = classroom;
@@ -56,5 +77,7 @@ public class TeachEnrollDetails {
         this.interviewLink = interviewLink;
         this.status = status;
         this.resumeUrl = resumeUrl;
+        this.interviewStartTime = interviewStartTime;
+        this.interviewEndTime = interviewEndTime;
     }
 }

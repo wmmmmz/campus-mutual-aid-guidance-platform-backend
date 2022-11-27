@@ -12,7 +12,8 @@ public enum Status {
     HIRED("成为导生"),
     TERMINATION("流程终止"),
     UNREADED,
-    READED;
+    READED,
+    TENCENT_MEETING_URL("https://meeting.tencent.com/user-center/joining?meeting_code=");
 
     public String getLabel() {
         return label;

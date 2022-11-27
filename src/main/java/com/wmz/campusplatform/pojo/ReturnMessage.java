@@ -39,7 +39,13 @@ public enum ReturnMessage {
 
     EXIST_TEACH_ENROLL(419, "请勿重复报名"),
 
-    NULL_FILE(420, "请上传简历");
+    NULL_FILE(420, "请上传简历"),
+
+    NULL_INTERVIEW_LINK(421, "请输入预定的会议号"),
+
+    NULL_INTERVIEW_TIME(422, "请输入面试时间"),
+
+    INVALID_INTERVIEW_LINK(413, "会议号格式错误");
 
     private int codeNum;
 
