@@ -58,10 +58,13 @@ public class TeachEnrollDetails {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date interviewEndTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date passDate;
+
     public TeachEnrollDetails(String studentName, String studentClass, String studentTel, String studentWx
             , String className, String courseName, String classroom, String day, Date startTime, Date endTime
             , Date enrollDate, Date successDate, String interviewLink, String status, String resumeUrl
-            , Date interviewStartTime, Date interviewEndTime) {
+            , Date interviewStartTime, Date interviewEndTime, Date passDate) {
         this.studentName = studentName;
         this.studentClass = studentClass;
         this.studentTel = studentTel;
@@ -79,5 +82,6 @@ public class TeachEnrollDetails {
         this.resumeUrl = resumeUrl;
         this.interviewStartTime = interviewStartTime;
         this.interviewEndTime = interviewEndTime;
+        this.passDate = passDate;
     }
 }

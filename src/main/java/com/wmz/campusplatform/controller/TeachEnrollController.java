@@ -14,6 +14,7 @@ import com.wmz.campusplatform.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.OneToOne;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -138,7 +139,8 @@ public class TeachEnrollController {
                     (String) teachData.get("status"),
                     prefix + Base64.getEncoder().encodeToString(resumeByte),
                     (Date) teachData.get("interview_start_date"),
-                    (Date) teachData.get("interview_end_date")
+                    (Date) teachData.get("interview_end_date"),
+                    (Date) teachData.get("passDate")
             );
             String interviewDate = "";
             if (teachData.get("interview_start_date") != null && teachData.get("interview_end_date") != null){
@@ -155,8 +157,10 @@ public class TeachEnrollController {
                 teachEnrollDetail.setActive(1);
             }else if (Status.INTERVIEWING.getLabel().equals(status)){
                 teachEnrollDetail.setActive(2);
-            }else if (Status.HIRED.getLabel().equals(status)){
+            }else if (Status.PASSED.getLabel().equals(status)){
                 teachEnrollDetail.setActive(3);
+            }else if (Status.HIRED.getLabel().equals(status)){
+                teachEnrollDetail.setActive(4);
             }else if (Status.TERMINATION.getLabel().equals(status)){
                 teachEnrollDetail.setActive(-1);
             }
@@ -196,6 +200,7 @@ public class TeachEnrollController {
         classRepository.updateStatusToArrangeInterview(classId, (String) map.get("studentName"), interviewLink
                 , startTime, endTime);
 
+        //send status update notify
         String description = null;
         if (Status.ENROLLED.getLabel().equals(status)){
             description = "恭喜您进入 " + termName + " - " + map.get("className") + " 导生招聘的面试环节，请至 我的报名 查看具体面试安排。";
@@ -203,7 +208,96 @@ public class TeachEnrollController {
             description = "面试官更新了您的 " + termName + " - " + map.get("className") + " 导生招聘面试安排，请至 我的报名 查看更新的信息。";
         }
         notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
-                ,(String) map.get("studentName"), description);
+                ,userRepository.findByName( (String) map.get("studentName")), description);
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @PostMapping("/updateStatusToHired")
+    public ResultTool updateStatusToHired(@RequestBody Map<String, Object> map){
+        ResultTool resultTool = new ResultTool();
+        String username = (String) map.get("studentName");
+        String termName = termService.getTermVerified((String) map.get("termName"));
+        List<Class> classList = classRepository.findByTermNameAndClassName(termName, (String) map.get("className"));
+        Class aClass = classList.get(0);
+        if (aClass.getUser() != null){
+            resultTool.setCode(ReturnMessage.CLASS_ASSIGNED_TEACHER.getCodeNum());
+            resultTool.setMessage(ReturnMessage.CLASS_ASSIGNED_TEACHER.getCodeMessage());
+            return resultTool;
+        }
+        Integer classId = classList.get(0).getId();
+        classRepository.updateStatusToHired(classId, username, new Date());
+        User teacher = userRepository.findByNameAndRole(username, Role.teacher.name());
+        if (teacher == null){
+            //create teacher account and send welcome notify
+            User teacherAccount = new User();
+            User userAccount = userRepository.findByNameAndRole(username, Role.student.name());
+            teacherAccount.setPwd(Status.DEFAULT_PASSWORD.getLabel());
+            teacherAccount.setName(username);
+            teacherAccount.setStuId(userAccount.getStuId());
+            teacherAccount.setClassName(userAccount.getClassName());
+            teacherAccount.setRole(Role.teacher.name());
+            teacherAccount.setImgUrl(Status.DEFAULT_IMG.getLabel());
+            userRepository.save(teacherAccount);
+
+            //welcome notify
+            String description = "恭喜您成为导生！";
+            List<User> userList = new ArrayList<>();
+            User receiver = userRepository.findByNameAndRole(username, Role.teacher.name());
+            userList.add(receiver);
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.SYSTEM_NOTIFY.getLabel()
+                    , userList, description);
+
+            //new teacher account information notify
+            String description1 = "您的导生账号已生成 账号用户名：" + teacherAccount.getStuId() + ", 初始密码：111111";
+            List<User> userList1 = new ArrayList<>();
+            User receiver1 = userRepository.findByNameAndRole(username, Role.student.name());
+            userList1.add(receiver1);
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.SYSTEM_NOTIFY.getLabel()
+                    , userList1, description1);
+        }
+        //set teacher for class
+        aClass.setUser(userRepository.findByNameAndRole(username, Role.teacher.name()));
+        aClass.setStatus(Status.ENROLL_TEACHER_FINISH.getLabel());
+        classRepository.save(aClass);
+
+        //send hired notify to student and teacher account
+        String description = "恭喜您已成为 " + termName + " - " + map.get("className") + " 的导生，请关注后续开班通知。";
+        notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+                , userRepository.findByName(username), description);
+
+        //send hired notify to admin account
+        String description2 = username + "已接收您发放的offer，成为 " + termName + " - " + map.get("className") + " 的导生。";
+        notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+                , userRepository.findByRole(Role.admin.name()), description2);
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @PostMapping("/updateStatusToPassed")
+    public ResultTool updateStatusToPassed(@RequestBody Map<String, Object> map){
+        ResultTool resultTool = new ResultTool();
+        String username = (String) map.get("studentName");
+        String termName = termService.getTermVerified((String) map.get("termName"));
+        List<Class> classList = classRepository.findByTermNameAndClassName(termName, (String) map.get("className"));
+        Class aClass = classList.get(0);
+        //check whether status can be passed
+        String status = classRepository.findTeachEnrollByClassIdAndStatus(aClass.getId(), Status.PASSED.getLabel());
+        if (!StringUtils.isEmpty(status)){
+            resultTool.setCode(ReturnMessage.PASSED_EXIST.getCodeNum());
+            resultTool.setMessage(ReturnMessage.PASSED_EXIST.getCodeMessage());
+            return resultTool;
+        }
+
+        //update status to passed
+        classRepository.updateStatusToPassed(aClass.getId(), username, new Date());
+
+        //send passed notify
+        String description = "恭喜您已通过 " + termName + " - " + map.get("className") + " 导生招聘的面试，请前往 我的报名 进行offer确认。";
+        notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+                , userRepository.findByName(username), description);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;

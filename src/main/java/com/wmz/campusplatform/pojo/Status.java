@@ -9,12 +9,16 @@ public enum Status {
     START_CLASS_SUCCESS("已开班"),
     ENROLLED("报名成功"),
     INTERVIEWING("安排面试"),
+    PASSED("面试通过"),
     HIRED("成为导生"),
     TERMINATION("流程终止"),
     UNREADED,
     READED,
-    TENCENT_MEETING_URL("https://meeting.tencent.com/user-center/joining?meeting_code=");
+    TENCENT_MEETING_URL("https://meeting.tencent.com/user-center/joining?meeting_code="),
 
+    DEFAULT_PASSWORD("96e79218965eb72c92a549dd5a330112"),
+
+    DEFAULT_IMG("default");
     public String getLabel() {
         return label;
     }

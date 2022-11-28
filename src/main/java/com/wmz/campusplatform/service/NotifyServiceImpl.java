@@ -21,15 +21,22 @@ public class NotifyServiceImpl implements NotifyService{
     @Autowired
     private NotifyAnnounceRepository notifyAnnounceRepository;
 
+    /**
+     * 系统自动发送通知
+     * @param theme
+     * @param receiveList
+     * @param description
+     */
     @Override
-    public void adminSendNotifyToSpecificUser(String theme, String userName, String description) {
+    public void adminSendNotifyToSpecificUser(String theme, List<User> receiveList, String description) {
         NotifyAnnounce notifyAnnounce = new NotifyAnnounce();
         notifyAnnounce.setTitle(theme);
         notifyAnnounce.setContent(description);
         List<User> userList = userRepository.findByRole(Role.admin.name());
         notifyAnnounce.setSender(userList.get(0));
-        notifyAnnounce.setReceiverList(userRepository.findByName(userName));
+        notifyAnnounce.setReceiverList(receiveList);
         notifyAnnounce.setCreateTime(new Date());
+        notifyAnnounce.setAuto(true);
         notifyAnnounceRepository.save(notifyAnnounce);
     }
 }

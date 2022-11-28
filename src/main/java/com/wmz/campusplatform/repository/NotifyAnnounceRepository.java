@@ -17,10 +17,10 @@ public interface NotifyAnnounceRepository extends JpaRepository<NotifyAnnounce, 
     @Query(nativeQuery = true, value = "select title, content, create_time as createTime, count(*) as unreadCnt\n" +
             "from notify_announce \n" +
             "left join notify_announce_receiver nar on nar.notify_announce_id = notify_announce.id  \n" +
-            "where sender_id = :senderId AND nar.status = 'UNREADED' AND " +
+            "where is_auto = :isAuto AND sender_id = :senderId AND nar.status = 'UNREADED' AND " +
             "(title like CONCAT('%' ,ifNull(:query,'') ,'%') OR content like CONCAT('%' ,ifNull(:query,'') ,'%') OR create_time like CONCAT('%' ,ifNull(:query,'') ,'%')\n)" +
             "group by notify_announce.id")
-    List<Map<String, Object>> findBySenderAndQuery(Integer senderId, String query);
+    List<Map<String, Object>> findBySenderAndQuery(Integer senderId, String query, Boolean isAuto);
 
     @Transactional
     void deleteByTitleAndContentAndCreateTime(String title, String content, Date creatTime);

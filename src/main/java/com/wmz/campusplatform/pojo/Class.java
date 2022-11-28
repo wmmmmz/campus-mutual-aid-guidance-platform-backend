@@ -168,8 +168,6 @@ public class Class {
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
                 ", status='" + status + '\'' +
-                ", studentList=" + studentList +
-                ", interviewList=" + interviewList +
                 '}';
     }
 }

@@ -48,6 +48,7 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
     List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
 
+    //----------------------TeachEnroll-------------------------
     @Modifying
     @Transactional
     @Query(nativeQuery = true, value = "INSERT INTO teach_enroll (user_id, class_id, enroll_date, resume)\n" +
@@ -61,7 +62,7 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             ", u.class_name AS studentClass, c.name AS className, c2.name AS courseName, c.day, c.start_time AS startTime\n" +
             "       , c.end_time AS endTime, room.room_name AS classroom, te.status\n" +
             "       , te.enroll_date AS enrollDate, te.interview_start_date, te.interview_end_date\n" +
-            "       , te.success_date AS successDate, te.interview_link AS interviewLink, te.resume \n" +
+            "       , te.success_date AS successDate, te.interview_link AS interviewLink, te.resume, te.pass_date AS passDate \n" +
             "FROM teach_enroll te \n" +
             "LEFT JOIN `user` u ON u.id = te.user_id \n" +
             "LEFT JOIN class c ON c.id = class_id \n" +
@@ -106,9 +107,30 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             "WHERE `user`.name = :studentName AND ts.class_id = :classId")
     void updateStatusToArrangeInterview(Integer classId, String studentName, String interviewLink, Date startTime, Date endTime);
 
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "UPDATE teach_enroll ts \n" +
+            "LEFT JOIN `user` ON ts.user_id = `user`.id \n" +
+            "SET ts.status = '成为导生', ts.success_date = :successDate\n" +
+            "WHERE `user`.name = :studentName AND ts.class_id = :classId")
+    void updateStatusToHired(Integer classId, String studentName, Date successDate);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "UPDATE teach_enroll ts \n" +
+            "LEFT JOIN `user` ON ts.user_id = `user`.id \n" +
+            "SET ts.status = '面试通过', ts.pass_date = :passDate\n" +
+            "WHERE `user`.name = :studentName AND ts.class_id = :classId")
+    void updateStatusToPassed(Integer classId, String studentName, Date passDate);
+
     @Query(nativeQuery = true, value = "SELECT te.status\n" +
             "FROM teach_enroll te\n" +
             "LEFT JOIN `user` ON te.user_id = `user`.id \n" +
             "WHERE `user`.name = :username AND te.class_id = :classId")
     String findStatusByUsernameAndClassId(String username, Integer classId);
+
+    @Query(nativeQuery = true, value = "SELECT te.status \n" +
+            "FROM teach_enroll te\n" +
+            "WHERE te.status = :status AND te.class_id = :classId")
+     String findTeachEnrollByClassIdAndStatus(Integer classId, String status);
 }

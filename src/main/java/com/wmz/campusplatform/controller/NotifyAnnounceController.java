@@ -36,6 +36,11 @@ public class NotifyAnnounceController {
     @Autowired
     private NotifyAnnounceRepository notifyAnnounceRepository;
 
+    /**
+     * admin管理员手动发布新通知
+     * @param notifyAnnounceDetails
+     * @return
+     */
     @PostMapping("/saveNotify")
     public ResultTool saveNotify(@RequestBody NotifyAnnounceDetails notifyAnnounceDetails){
         ResultTool resultTool = new ResultTool();
@@ -50,6 +55,7 @@ public class NotifyAnnounceController {
             resultTool.setMessage(ReturnMessage.NULL_NOTIFY_CONTENT.getCodeMessage());
         } else {
             NotifyAnnounce notifyAnnounce = notifyAnnounceDetailConvert.notifyAnnounceDetailConvert(notifyAnnounceDetails);
+            notifyAnnounce.setAuto(false);
             notifyAnnounceRepository.save(notifyAnnounce);
             resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
             resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
@@ -57,6 +63,13 @@ public class NotifyAnnounceController {
         return resultTool;
     }
 
+    /**
+     * admin管理员查看手动发布的通知
+     * @param stuId
+     * @param role
+     * @param query
+     * @return
+     */
     @GetMapping("/getNotifyISent")
     public ResultTool getNotifyISent(@RequestParam String stuId,
                                      @RequestParam String role,
@@ -64,7 +77,7 @@ public class NotifyAnnounceController {
         ResultTool resultTool = new ResultTool();
         User sender = userRepository.findByStuIdAndRole(stuId, role);
         List<NotifyAnnounceDetails> notifyAnnounceDetailsList = new ArrayList<>();
-        List<Map<String, Object>> notifyAnnounceList = notifyAnnounceRepository.findBySenderAndQuery(sender.getId(), query);
+        List<Map<String, Object>> notifyAnnounceList = notifyAnnounceRepository.findBySenderAndQuery(sender.getId(), query, false);
         for (Map<String, Object> notifyAnnounce : notifyAnnounceList) {
             NotifyAnnounceDetails notifyAnnounceDetails = new NotifyAnnounceDetails();
             for(Map.Entry<String, Object> m : notifyAnnounce.entrySet()){

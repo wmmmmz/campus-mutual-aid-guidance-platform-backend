@@ -29,6 +29,16 @@ public class NotifyAnnounce {
 
     private String content;
 
+    private Boolean isAuto;
+
+    public Boolean getAuto() {
+        return isAuto;
+    }
+
+    public void setAuto(Boolean auto) {
+        isAuto = auto;
+    }
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
 
@@ -47,6 +57,7 @@ public class NotifyAnnounce {
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
                 ", createTime=" + createTime +
+                ", isAuto=" + isAuto +
                 '}';
     }
 

@@ -45,7 +45,11 @@ public enum ReturnMessage {
 
     NULL_INTERVIEW_TIME(422, "请输入面试时间"),
 
-    INVALID_INTERVIEW_LINK(413, "会议号格式错误");
+    INVALID_INTERVIEW_LINK(413, "会议号格式错误"),
+
+    CLASS_ASSIGNED_TEACHER(414, "该班级已分配导生"),
+
+    PASSED_EXIST(415, "该班级已有候选人在选择offer");
 
     private int codeNum;
 
