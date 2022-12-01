@@ -163,6 +163,8 @@ public class TeachEnrollController {
                 teachEnrollDetail.setActive(4);
             }else if (Status.TERMINATION.getLabel().equals(status)){
                 teachEnrollDetail.setActive(-1);
+            }else if (Status.INTERRUPTED.getLabel().equals(status)){
+                teachEnrollDetail.setActive(-1);
             }
             teachEnrollDetail.setInterviewDate(interviewDate);
             teachEnrollDetails.add(teachEnrollDetail);
@@ -298,6 +300,38 @@ public class TeachEnrollController {
         String description = "恭喜您已通过 " + termName + " - " + map.get("className") + " 导生招聘的面试，请前往 我的报名 进行offer确认。";
         notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
                 , userRepository.findByName(username), description);
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @PostMapping("/updateStatusToInterrupted")
+    public ResultTool updateStatusToInterrupted(@RequestBody Map<String, Object> map){
+        ResultTool resultTool = new ResultTool();
+        String reason = (String) map.get("reason");
+        if (StringUtils.isEmpty(reason)){
+            resultTool.setCode(ReturnMessage.NULL_REFUSE_REASON.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_REFUSE_REASON.getCodeMessage());
+            return resultTool;
+        }
+        String username = (String) map.get("studentName");
+        String termName = termService.getTermVerified((String) map.get("termName"));
+        List<Class> classList = classRepository.findByTermNameAndClassName(termName, (String) map.get("className"));
+        Class aClass = classList.get(0);
+        classRepository.updateStatusToInterrupted(reason, aClass.getId(), username, new Date());
+
+        if ((Boolean) map.get("fromAdmin")){
+            //send refuse notify to student and teacher account
+            String description2 = "您的 " + termName + " - " + map.get("className") + " 导生招聘流程已中断，原因: " + reason;
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+                    , userRepository.findByName(username), description2);
+        }else {
+            //send refuse notify to admin account
+            String description = username + "拒绝了您发放的offer: " + termName + " - " + map.get("className") + " 导生，原因为 " + reason;
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+                    , userRepository.findByRole(Role.admin.name()), description);
+        }
+
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;

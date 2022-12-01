@@ -151,6 +151,21 @@ public class ClassController {
         return resultTool;
     }
 
+    @PostMapping("/changeStatus")
+    public ResultTool changeStatus(@RequestBody Map<String, Object> map){
+        ResultTool resultTool = new ResultTool();
+        String status = (String) map.get("status");
+        String className = (String) map.get("className");
+        String termName = termService.getTermVerified((String) map.get("termName"));
+        List<Class> classList = classRepository.findByTermNameAndClassName(termName, className);
+        Class aClass = classList.get(0);
+        aClass.setStatus(status);
+        classRepository.save(aClass);
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
     private ResultTool getErrorMessage(ClassDetails classDetails, boolean isUpdate){
         ResultTool resultTool = new ResultTool();
         if (StringUtils.isEmpty(classDetails.getClassName())){

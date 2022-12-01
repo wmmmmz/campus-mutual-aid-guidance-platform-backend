@@ -12,6 +12,7 @@ public enum Status {
     PASSED("面试通过"),
     HIRED("成为导生"),
     TERMINATION("流程终止"),
+    INTERRUPTED("流程中断"),
     UNREADED,
     READED,
     TENCENT_MEETING_URL("https://meeting.tencent.com/user-center/joining?meeting_code="),

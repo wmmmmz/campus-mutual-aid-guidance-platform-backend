@@ -49,7 +49,9 @@ public enum ReturnMessage {
 
     CLASS_ASSIGNED_TEACHER(414, "该班级已分配导生"),
 
-    PASSED_EXIST(415, "该班级已有候选人在选择offer");
+    PASSED_EXIST(415, "该班级已有候选人在选择offer"),
+
+    NULL_REFUSE_REASON(416, "请填写具体原因");
 
     private int codeNum;
 

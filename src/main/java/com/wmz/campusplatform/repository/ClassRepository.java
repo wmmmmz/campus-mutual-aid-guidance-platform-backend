@@ -133,4 +133,12 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             "FROM teach_enroll te\n" +
             "WHERE te.status = :status AND te.class_id = :classId")
      String findTeachEnrollByClassIdAndStatus(Integer classId, String status);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "UPDATE teach_enroll ts \n" +
+            "LEFT JOIN `user` ON ts.user_id = `user`.id \n" +
+            "SET ts.status = '流程中断', ts.interrupt_date = :interruptDate, ts.remark = :reason\n" +
+            "WHERE `user`.name = :studentName AND ts.class_id = :classId")
+    void updateStatusToInterrupted(String reason, Integer classId, String studentName, Date interruptDate);
 }
