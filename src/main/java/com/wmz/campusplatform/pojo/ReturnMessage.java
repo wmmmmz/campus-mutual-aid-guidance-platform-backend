@@ -51,8 +51,11 @@ public enum ReturnMessage {
 
     PASSED_EXIST(415, "该班级已有候选人在选择offer"),
 
-    NULL_REFUSE_REASON(416, "请填写具体原因");
+    NULL_REFUSE_REASON(416, "请填写具体原因"),
 
+    EXIST_CLASS_ENROLL(417, "请勿重复报名"),
+
+    IS_TEACHER(418, "您是该班级的导生");
     private int codeNum;
 
     private String codeMessage;

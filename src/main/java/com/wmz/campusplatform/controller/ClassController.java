@@ -139,6 +139,10 @@ public class ClassController {
                     (String) classData.get("courseName"),
                     (String)classData.get("roomName"),
                     (String) classData.get("day"));
+            classDetails.setTeacherName((String) classData.get("teacherName"));
+            classDetails.setTeacherWx((String) classData.get("teacherWx"));
+            classDetails.setTeacherTel((String) classData.get("teacherTel"));
+            classDetails.setTeacherClass((String) classData.get("teacherClass"));
             List<Date> dateList = new ArrayList<>();
             dateList.add((Date) classData.get("startTime"));
             dateList.add((Date) classData.get("endTime"));

@@ -41,6 +41,10 @@ public class ClassDetails {
 
     private String termName;
 
+    private String tencentMeeting;
+
+    private String tencentMeetingUrl;
+
     private BigInteger studentCnt;
 
     private String status;

@@ -1,6 +1,8 @@
 package com.wmz.campusplatform.repository;
 
 import com.wmz.campusplatform.pojo.Class;
+import io.swagger.models.auth.In;
+import org.hibernate.loader.collection.OneToManyJoinWalker;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -36,16 +38,19 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             "WHERE t.term = :termName AND c.name = :className")
     List<Class> findByTermNameAndClassName(String termName, String className);
 
-    @Query(nativeQuery = true, value = "SELECT  c.name as className, c2.name as courseName, c.day\n" +
-            ", c.start_time as startTime, c.end_time as endTime, room.room_name as roomName\n" +
+    @Query(nativeQuery = true, value = "SELECT c.name as className, c2.name as courseName, c.day\n" +
+            ", c.start_time as startTime, c.end_time as endTime, room.room_name as roomName, u.name AS teacherName" +
+            ", u.tel AS teacherTel, u.wx AS teacherWx, u.class_name AS teacherClass\n" +
             "FROM class c \n" +
+            "LEFT JOIN `user` u ON u.id = c.user_id \n" +
             "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
             "LEFT JOIN term t ON t.id = c2.term_id \n" +
             "LEFT JOIN room ON c.room_id = room.id \n" +
             "WHERE t.term = :termName AND c.status = :status\n" +
             "AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
             "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
-            "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
+            "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
+            "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
     List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
 
     //----------------------TeachEnroll-------------------------
@@ -141,4 +146,61 @@ public interface ClassRepository extends JpaRepository<Class, Integer> {
             "SET ts.status = '流程中断', ts.interrupt_date = :interruptDate, ts.remark = :reason\n" +
             "WHERE `user`.name = :studentName AND ts.class_id = :classId")
     void updateStatusToInterrupted(String reason, Integer classId, String studentName, Date interruptDate);
+
+    //-----------ClassEnroll---------------
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "INSERT INTO student_enroll_class (user_id, class_id, enroll_date)\n" +
+            "VALUES (:userId, :classId, :enrollDate)")
+    void saveClassEnroll(Integer userId, Integer classId, Date enrollDate);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM student_enroll_class WHERE user_id = :userId AND class_id = :classId")
+    List<Map<String, Object>> findClassEnroll(Integer userId, Integer classId);
+
+    @Query(nativeQuery = true, value = "SELECT  c.name as className, c2.name as courseName, c.day\n" +
+            ", c.start_time as startTime, c.end_time as endTime, room.room_name as roomName\n" +
+            ", c.tencent_meeting as tencentMeeting, `user`.name as teacherName, `user`.tel as teacherTel, " +
+            "`user`.wx as teacherWx, `user`.class_name as teacherClass, COUNT(DISTINCT sec.id) as studentCnt, c.status\n" +
+            "FROM class c \n" +
+            "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
+            "LEFT JOIN term t ON t.id = c2.term_id \n" +
+            "LEFT JOIN student_enroll_class sec ON sec.class_id = c.id \n" +
+            "LEFT JOIN room ON c.room_id = room.id \n" +
+            "LEFT JOIN `user` ON `user`.id = c.user_id \n" +
+            "WHERE t.term = :termName AND sec.user_id = :userId AND\n" +
+            "(c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
+            "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
+            "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
+            "OR c.tencent_meeting LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR `user`.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n" +
+            "GROUP BY c.id ")
+    List<Map<String, Object>> getMyClassEnrollDataList(String query, String termName, Integer userId);
+
+    @Modifying
+    @Transactional
+    @Query(nativeQuery = true, value = "DELETE " +
+            "FROM student_enroll_class \n" +
+            "WHERE user_id = :userId AND class_id = :classId")
+    void deleteClassEnroll(Integer classId, Integer userId);
+
+    @Query(nativeQuery = true, value = "SELECT c.name, c.start_time, c.end_time , c.`day`, r.room_name, c.tencent_meeting \n" +
+            "FROM student_enroll_class sec \n" +
+            "LEFT JOIN `user` u ON u.id = sec.user_id \n" +
+            "LEFT JOIN class c ON c.id = sec.class_id \n" +
+            "LEFT JOIN course c2 ON c.course_id = c2.id \n" +
+            "LEFT JOIN term t ON t.id = c2.term_id \n" +
+            "LEFT JOIN room r ON r.id = c.room_id \n" +
+            "WHERE c.status = '已开班' AND u.id = :userId AND t.term = :termName\n" +
+            "ORDER BY c.start_time ASC, c.`day` ASC")
+    List<Map<String, Object>> getClassTable(Integer userId, String termName);
+
+    @Query(nativeQuery = true, value = "SELECT c.name, c.start_time, c.end_time , c.`day`, r.room_name, c.tencent_meeting \n" +
+            "FROM class c \n" +
+            "LEFT JOIN `user` u ON u.id = c.user_id \n" +
+            "LEFT JOIN course c2 ON c.course_id = c2.id \n" +
+            "LEFT JOIN term t ON t.id = c2.term_id \n" +
+            "LEFT JOIN room r ON r.id = c.room_id \n" +
+            "WHERE c.status = '已开班' AND u.id = :userId AND t.term = :termName\n" +
+            "ORDER BY c.start_time ASC, c.`day` ASC")
+    List<Map<String, Object>> getTeachTable(Integer userId, String termName);
 }
