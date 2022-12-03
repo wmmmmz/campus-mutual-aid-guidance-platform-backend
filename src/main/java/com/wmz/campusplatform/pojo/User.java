@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
@@ -44,11 +45,13 @@ public class User {
     private List<NotifyAnnounce> notifyAnnounceList;
 
     //用户报名上课的class列表
+    @JsonIgnore
     @JsonIgnoreProperties(value = "studentList")
     @ManyToMany(mappedBy = "studentList")
     private List<Class> classList;
 
     //用户曾报名授课的class列表
+    @JsonIgnore
     @JsonIgnoreProperties(value = "interviewList")
     @ManyToMany(mappedBy = "interviewList")
     private List<Class> teachEnrollClassList;

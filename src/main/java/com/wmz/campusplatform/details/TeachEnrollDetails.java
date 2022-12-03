@@ -29,10 +29,10 @@ public class TeachEnrollDetails {
 
     private String day;
 
-    @JsonFormat(pattern = "HH:mm:ss")
+    @JsonFormat(pattern = "HH:mm")
     private Date startTime;
 
-    @JsonFormat(pattern = "HH:mm:ss")
+    @JsonFormat(pattern = "HH:mm")
     private Date endTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd")

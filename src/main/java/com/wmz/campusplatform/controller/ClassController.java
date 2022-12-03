@@ -87,27 +87,28 @@ public class ClassController {
                 termName = termByDate.getTerm();
             }
         }
-        List<Map<String, Object>> classDataList = classRepository.findClassDataList(query, termName);
-        List<ClassDetails> classDetailsList = new ArrayList<>();
-        for (Map<String, Object> classData : classDataList) {
-            ClassDetails classDetail = new ClassDetails(
-                    (String) classData.get("className"),
-                    (String) classData.get("courseName"),
-                    (String) classData.get("teacherName"),
-                    (String) classData.get("teacherTel"),
-                    (String) classData.get("teacherWx"),
-                    (String) classData.get("teacherClass"),
-                    (String)classData.get("roomName"),
-                    (String) classData.get("day"),
-                    (BigInteger) classData.get("studentCnt"),
-                    (String) classData.get("status")
-            );
-            List<Date> dateList = new ArrayList<>();
-            dateList.add((Date) classData.get("startTime"));
-            dateList.add((Date) classData.get("endTime"));
-            classDetail.setDateList(dateList);
-            classDetailsList.add(classDetail);
-        }
+        List<Class> classDetailsList = classRepository.findClassDataList(query, termName);
+//        List<Map<String, Object>> classDataList = classRepository.findClassDataList(query, termName);
+//        List<ClassDetails> classDetailsList = new ArrayList<>();
+//        for (Map<String, Object> classData : classDataList) {
+//            ClassDetails classDetail = new ClassDetails(
+//                    (String) classData.get("className"),
+//                    (String) classData.get("courseName"),
+//                    (String) classData.get("teacherName"),
+//                    (String) classData.get("teacherTel"),
+//                    (String) classData.get("teacherWx"),
+//                    (String) classData.get("teacherClass"),
+//                    (String)classData.get("roomName"),
+//                    (String) classData.get("day"),
+//                    (BigInteger) classData.get("studentCnt"),
+//                    (String) classData.get("status")
+//            );
+//            List<Date> dateList = new ArrayList<>();
+//            dateList.add((Date) classData.get("startTime"));
+//            dateList.add((Date) classData.get("endTime"));
+//            classDetail.setDateList(dateList);
+//            classDetailsList.add(classDetail);
+//        }
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         resultTool.setData(classDetailsList);

@@ -2,6 +2,7 @@ package com.wmz.campusplatform.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,17 +33,17 @@ public class Class {
 
     private String day;
 
-    @JsonFormat(pattern = "HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "HH:mm", timezone="GMT+8")
     private Date startTime;
 
-    @JsonFormat(pattern = "HH:mm:ss", timezone="GMT+8")
+    @JsonFormat(pattern = "HH:mm", timezone="GMT+8")
     private Date endTime;
 
     private String status;
 
     //class的学生列表
     @ManyToMany
-    @JsonIgnore
+    @JsonIgnoreProperties("classList")
     @JoinTable(name = "student_enroll_class",
             joinColumns = @JoinColumn(name = "class_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
@@ -51,10 +52,12 @@ public class Class {
     //class的导生报名列表
     @ManyToMany
     @JsonIgnore
+    @JsonIgnoreProperties("teachEnrollClassList")
     @JoinTable(name = "teach_enroll",
             joinColumns = @JoinColumn(name = "class_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> interviewList;
+
 
     public List<User> getInterviewList() {
         return interviewList;
@@ -65,6 +68,20 @@ public class Class {
     }
 
     public Class() {
+    }
+
+    public Class(String className, Course course, String day, Date startTime, Date endTime, Room room
+    , String tencentMeeting, User user,  String status, List<User> studentList){
+        this.name = className;
+        this.course = course;
+        this.day = day;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.room = room;
+        this.TencentMeeting = tencentMeeting;
+        this.user = user;
+        this.status = status;
+        this.studentList = studentList;
     }
 
     public Integer getId() {
