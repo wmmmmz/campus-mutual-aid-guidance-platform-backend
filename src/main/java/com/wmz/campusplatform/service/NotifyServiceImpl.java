@@ -34,7 +34,9 @@ public class NotifyServiceImpl implements NotifyService{
         notifyAnnounce.setContent(description);
         List<User> userList = userRepository.findByRole(Role.admin.name());
         notifyAnnounce.setSender(userList.get(0));
-        notifyAnnounce.setReceiverList(receiveList);
+        //avoid shared reference
+        notifyAnnounce.setReceiverList(new ArrayList<>());
+        notifyAnnounce.getReceiverList().addAll(receiveList);
         notifyAnnounce.setCreateTime(new Date());
         notifyAnnounce.setAuto(true);
         notifyAnnounceRepository.save(notifyAnnounce);

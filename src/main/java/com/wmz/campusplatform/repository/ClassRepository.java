@@ -89,7 +89,6 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
             "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
     List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
-
     //----------------------TeachEnroll-------------------------
     @Modifying
     @Transactional

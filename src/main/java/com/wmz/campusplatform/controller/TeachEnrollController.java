@@ -10,6 +10,7 @@ import com.wmz.campusplatform.service.FileUploadService;
 import com.wmz.campusplatform.service.MongoDBService;
 import com.wmz.campusplatform.service.NotifyService;
 import com.wmz.campusplatform.service.TermService;
+import com.wmz.campusplatform.utils.MongoAutoIdUtil;
 import com.wmz.campusplatform.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,9 @@ public class TeachEnrollController {
 
     @Autowired
     private NotifyService notifyService;
+
+    @Autowired
+    private MongoAutoIdUtil mongoAutoIdUtil;
 
     @PostMapping("/checkEnroll")
     public ResultTool checkEnroll(@RequestBody Map<String, Object> map){
@@ -88,7 +92,7 @@ public class TeachEnrollController {
         }
         String resumeName = user.getName() + "_" + termName + "_" + map.get("className");
         java.io.File resumeFile = new java.io.File(filePath);
-        mongoDBHelper.save(new UploadFile(mongoDBHelper.findAll(UploadFile.class).size() + 1, (String) map.get("suffixName")
+        mongoDBHelper.save(new UploadFile(mongoAutoIdUtil.getNextSequence("seq_uploadFile"), (String) map.get("suffixName")
                 , resumeName, fileUploadService.fileToByte(resumeFile)));
         classRepository.saveTeachEnroll(userId, classId, new Date(), resumeName);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());

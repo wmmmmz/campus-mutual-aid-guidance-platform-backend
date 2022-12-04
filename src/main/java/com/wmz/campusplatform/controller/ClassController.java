@@ -7,6 +7,7 @@ import com.wmz.campusplatform.pojo.Class;
 import com.wmz.campusplatform.repository.ClassRepository;
 import com.wmz.campusplatform.repository.TermRepository;
 import com.wmz.campusplatform.repository.UserRepository;
+import com.wmz.campusplatform.service.NotifyService;
 import com.wmz.campusplatform.service.TermService;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
@@ -39,6 +40,9 @@ public class ClassController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotifyService notifyService;
 
     @PostMapping("/saveClass")
     public ResultTool saveClass(@RequestBody ClassDetails classDetails){
@@ -207,7 +211,24 @@ public class ClassController {
         List<Class> classList = classRepository.findByTermNameAndClassName(termName, className);
         Class aClass = classList.get(0);
         aClass.setStatus(status);
+        if (aClass.getStatus().equals(Status.START_CLASS_SUCCESS.getLabel())){
+            List<User> studentList = aClass.getStudentList();
+            //send start class notify to student account
+            String description = "您报名的 " + termName + " - " + map.get("className") + " 课程已开班，请至 我的课程 - 课程详情 查看具体信息。";
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+                    , studentList, description);
+
+            //send start class notify to teacher account
+            List<User> teacher = new ArrayList<>();
+            teacher.add(aClass.getUser());
+            String description2 = "您负责授课的 " + termName + " - " + map.get("className") + " 课程已开班，请至 我教的课 - 课程详情 查看具体信息，若为线上课程，请及时更新线上会议号";
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+                    , teacher, description2);
+        }
         classRepository.save(aClass);
+
+
+
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;

@@ -7,6 +7,7 @@ import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.NotifyAnnounceRepository;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.service.MongoDBService;
+import com.wmz.campusplatform.utils.MongoAutoIdUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -36,6 +37,9 @@ public class UserController {
 
     @Autowired
     private NotifyAnnounceRepository notifyAnnounceRepository;
+
+    @Autowired
+    private MongoAutoIdUtil mongoAutoIdUtil;
 
     @PostMapping("/updateOrSave")
     public ResultTool updateOrSaveUser(@RequestBody User user){
@@ -112,7 +116,7 @@ public class UserController {
                     mongoTemplate.remove(img1);
                 }
             }
-            mongoDBHelper.save(new Img(mongoDBHelper.findAll(Img.class).size() + 1, imgUrl, split[0], Base64.getDecoder().decode(split[1])));
+            mongoDBHelper.save(new Img(mongoAutoIdUtil.getNextSequence("seq_img"), imgUrl, split[0], Base64.getDecoder().decode(split[1])));
             resultTool.setData(userDetails);
         }
         return resultTool;

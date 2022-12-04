@@ -48,12 +48,11 @@ public class MongoDBHelperTest{
 //        }
 //        List<Carousel> all = mongoDBHelper.findAll(Carousel.class);
 //        for (Carousel carousel : all) {
-//            System.out.println(carousel.getTheme());
+//            System.out.println(carousel.getId());
 //        }
         List<UploadFile> files = mongoDBHelper.findAll(UploadFile.class);
         for (UploadFile file : files) {
-            System.out.println(file.getFileName());
-            System.out.println(Base64.getEncoder().encodeToString(file.getFile()));
+            System.out.println(file.getId());
         }
 
     }

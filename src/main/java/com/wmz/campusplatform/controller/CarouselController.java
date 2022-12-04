@@ -7,6 +7,7 @@ import com.wmz.campusplatform.pojo.Img;
 import com.wmz.campusplatform.pojo.ResultTool;
 import com.wmz.campusplatform.pojo.ReturnMessage;
 import com.wmz.campusplatform.service.MongoDBService;
+import com.wmz.campusplatform.utils.MongoAutoIdUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -29,14 +30,21 @@ public class CarouselController {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private MongoAutoIdUtil mongoAutoIdUtil;
+
     @PostMapping("/saveCarousel")
     public ResultTool saveCarousel(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
         String ImgBase64 = (String)map.get("imgUrl");
         String theme = (String)map.get("theme");
         String[] split = ImgBase64.split(",");
-        mongoDBHelper.save(new Carousel(mongoDBHelper.findAll(Carousel.class).size() + 1, theme,
-                split[0], Base64.getDecoder().decode(split[1])));
+        Carousel carousel = new Carousel();
+        carousel.setId(mongoAutoIdUtil.getNextSequence("seq_carousel"));
+        carousel.setTheme(theme);
+        carousel.setImgPre(split[0]);
+        carousel.setImgFile(Base64.getDecoder().decode(split[1]));
+        mongoDBHelper.save(carousel);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
