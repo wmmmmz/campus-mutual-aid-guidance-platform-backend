@@ -45,8 +45,8 @@ public class User {
     private List<NotifyAnnounce> notifyAnnounceList;
 
     //用户报名上课的class列表
-    @JsonIgnore
-    @JsonIgnoreProperties(value = "studentList")
+//    @JsonIgnore
+//    @JsonIgnoreProperties(value = "studentList")
     @ManyToMany(mappedBy = "studentList")
     private List<Class> classList;
 

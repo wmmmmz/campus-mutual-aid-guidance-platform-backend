@@ -53,6 +53,8 @@ public class ClassDetailsConvert {
         Room room = roomRepository.findByRoomName(classDetails.getClassroom());
         aClass.setRoom(room);
 
+        aClass.setTencentMeeting(classDetails.getTencentMeeting());
+
         aClass.setStartTime(classDetails.getDateList().get(0));
         aClass.setEndTime(classDetails.getDateList().get(1));
         return aClass;

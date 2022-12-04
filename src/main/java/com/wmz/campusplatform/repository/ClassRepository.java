@@ -1,6 +1,7 @@
 package com.wmz.campusplatform.repository;
 
 import com.wmz.campusplatform.pojo.Class;
+import com.wmz.campusplatform.pojo.User;
 import io.swagger.models.auth.In;
 import org.hibernate.loader.collection.OneToManyJoinWalker;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,6 +45,28 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "OR room.roomName LIKE CONCAT('%' , ?1 ,'%') " +
             "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))"   )
     List<Class> findClassDataList(String query, String termName);
+
+    @Query(value = "SELECT aClass FROM Class AS aClass " +
+            "LEFT JOIN aClass.room AS room " +
+            "LEFT JOIN aClass.user AS user " +
+            "LEFT JOIN aClass.course AS course " +
+            "LEFT JOIN aClass.course.term AS term " +
+            "WHERE term.term = ?2 AND user.id = ?4 AND aClass.status = ?3 AND " +
+            "(aClass.name LIKE CONCAT('%' , ?1 ,'%') OR course.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.day LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR room.roomName LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))"   )
+    List<Class> findMyTeachClassDataList(String query, String termName, String status, Integer userId);
+
+    @Query(value = "SELECT aClass FROM Class AS aClass " +
+            "LEFT JOIN aClass.room AS room " +
+            "LEFT JOIN aClass.user AS user " +
+            "LEFT JOIN aClass.course AS course " +
+            "LEFT JOIN aClass.course.term AS term " +
+            "WHERE term.term = ?2 AND aClass.status = ?3 AND ?4 IN (aClass.studentList) AND " +
+            "(aClass.name LIKE CONCAT('%' , ?1 ,'%') OR course.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.day LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR room.roomName LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))"   )
+    List<Class> findClassILearnDataList(String query, String termName, String status, User student);
 
     @Query(nativeQuery = true, value = "SELECT * \n" +
             "FROM class c \n" +

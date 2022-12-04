@@ -6,6 +6,7 @@ import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.pojo.Class;
 import com.wmz.campusplatform.repository.ClassRepository;
 import com.wmz.campusplatform.repository.TermRepository;
+import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.service.TermService;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/class")
@@ -34,6 +36,9 @@ public class ClassController {
 
     @Autowired
     private TermService termService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/saveClass")
     public ResultTool saveClass(@RequestBody ClassDetails classDetails){
@@ -66,7 +71,7 @@ public class ClassController {
         Class aClass = classDetailsConvert.classDetailConvert(originalClass, classDetails);
         if (aClass.getUser() == null){
             aClass.setStatus(Status.ENROLL_TEACHER_IN_PROGRESS.getLabel());
-        }else {
+        }else if (Status.ENROLL_TEACHER_IN_PROGRESS.getLabel().equals(aClass.getStatus())){
             aClass.setStatus(Status.ENROLL_TEACHER_FINISH.getLabel());
         }
         classRepository.save(aClass);
@@ -75,19 +80,56 @@ public class ClassController {
         return resultTool;
     }
 
-    @GetMapping("/getClassDataList")
-    public ResultTool getClassDataList(@RequestParam(required = false) String query, String termName
-                        ,@RequestParam(required = false) String status){
+    @PostMapping("/updateTencentMeeting")
+    public ResultTool updateTencentMeeting(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
-        if (StringUtils.isEmpty(termName)) {
-            Term termByDate = termRepository.findTermByDate(new Date());
-            if (termByDate == null) {
-                log.error("学期不存在");
-            } else {
-                termName = termByDate.getTerm();
+        String termName = termService.getTermVerified((String) map.get("termName"));
+        String className = (String) map.get("className");
+        List<Class> classList = classRepository.findByTermNameAndClassName(termName, className);
+        Class aClass = classList.get(0);
+        aClass.setTencentMeeting((String) map.get("tencentMeeting"));
+        classRepository.save(aClass);
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @GetMapping("/getClassDataList")
+    public ResultTool getClassDataList(@RequestParam(required = false) String query
+                                     , @RequestParam(required = false) String termName
+                                     , @RequestParam(required = false) String status
+                                     , @RequestParam(required = false) String role
+                                     , @RequestParam(required = false) String stuId){
+        ResultTool resultTool = new ResultTool();
+        String term = termService.getTermVerified(termName);
+        List<Class> classDetailsList = null;
+        if (Role.admin.name().equals(role)){
+            classDetailsList = classRepository.findClassDataList(query, term);
+        }else if (Role.teacher.name().equals(role)){
+            User teacher = userRepository.findByStuIdAndRole(stuId, role);
+            Integer userId = teacher.getId();
+            classDetailsList = classRepository.findMyTeachClassDataList(query, term, Status.START_CLASS_SUCCESS.getLabel(), userId);
+        }else if (Role.student.name().equals(role)){
+            User student = userRepository.findByStuIdAndRole(stuId, role);
+            //get all class list
+            classDetailsList = student.getClassList();
+            //filter by termName and status == '已开班'
+            classDetailsList = classDetailsList.stream().filter(classDetail ->
+                    term.equals(classDetail.getCourse().getTerm().getTerm())
+                            && Status.START_CLASS_SUCCESS.getLabel().equals(classDetail.getStatus())).collect(Collectors.toList());
+            //filter by query
+            if (!StringUtils.isEmpty(query)){
+                classDetailsList = classDetailsList.stream()
+                        .filter(classDetail -> !StringUtils.isEmpty(classDetail.getName()) && classDetail.getName().contains(query)
+                                || classDetail.getCourse() != null && classDetail.getCourse().getName().contains(query)
+                                || !StringUtils.isEmpty(classDetail.getDay()) && classDetail.getDay().contains(query)
+                                || classDetail.getRoom() != null && classDetail.getRoom().getRoomName().contains(query)
+                                || !StringUtils.isEmpty(classDetail.getTencentMeeting()) && classDetail.getTencentMeeting().contains(query)
+                                || classDetail.getUser() != null && classDetail.getUser().getName().contains(query)).collect(Collectors.toList());
             }
         }
-        List<Class> classDetailsList = classRepository.findClassDataList(query, termName);
+
+
 //        List<Map<String, Object>> classDataList = classRepository.findClassDataList(query, termName);
 //        List<ClassDetails> classDetailsList = new ArrayList<>();
 //        for (Map<String, Object> classData : classDataList) {
