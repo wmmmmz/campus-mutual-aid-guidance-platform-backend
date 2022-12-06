@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -215,14 +212,14 @@ public class ClassController {
             List<User> studentList = aClass.getStudentList();
             //send start class notify to student account
             String description = "您报名的 " + termName + " - " + map.get("className") + " 课程已开班，请至 我的课程 - 课程详情 查看具体信息。";
-            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.CLASS_STATUS_CHANGE.getLabel()
                     , studentList, description);
 
             //send start class notify to teacher account
             List<User> teacher = new ArrayList<>();
             teacher.add(aClass.getUser());
             String description2 = "您负责授课的 " + termName + " - " + map.get("className") + " 课程已开班，请至 我教的课 - 课程详情 查看具体信息，若为线上课程，请及时更新线上会议号";
-            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
+            notifyService.adminSendNotifyToSpecificUser(NotifyTheme.CLASS_STATUS_CHANGE.getLabel()
                     , teacher, description2);
         }
         classRepository.save(aClass);
@@ -231,6 +228,28 @@ public class ClassController {
 
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @GetMapping("/getStarTeacher")
+    public ResultTool getStarTeacher(){
+        ResultTool resultTool = new ResultTool();
+        List<Map<String, Object>> starTeacher = classRepository.getStarTeacher();
+        List<String> teacherList = new ArrayList<>();
+        List<BigInteger> teachCntList = new ArrayList<>();
+        int cnt = 0;
+        for (Map<String, Object> teacher : starTeacher) {
+            cnt++;
+            teacherList.add((String) teacher.get("name"));
+            teachCntList.add((BigInteger) teacher.get("teachCnt"));
+            if (cnt == 5) break;
+        }
+        Map<String, List> map = new HashMap<>();
+        map.put("teacherName", teacherList);
+        map.put("teachCnt", teachCntList);
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        resultTool.setData(map);
         return resultTool;
     }
 

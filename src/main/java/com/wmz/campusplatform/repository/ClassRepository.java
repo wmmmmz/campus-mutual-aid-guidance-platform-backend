@@ -89,6 +89,14 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
             "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
     List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
+
+    @Query(nativeQuery = true, value = "SELECT u.name ,COUNT(*) AS teachCnt \n" +
+            "FROM `class` c \n" +
+            "LEFT JOIN `user` u ON u.id = c.user_id \n" +
+            "WHERE c.status = '已开班'\n" +
+            "GROUP BY c.user_id \n" +
+            "ORDER BY teachCnt DESC")
+    List<Map<String, Object>> getStarTeacher();
     //----------------------TeachEnroll-------------------------
     @Modifying
     @Transactional
