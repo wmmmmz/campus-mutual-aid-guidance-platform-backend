@@ -90,6 +90,15 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
     List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
 
+    @Query("SELECT aClass " +
+            "FROM Class AS aClass " +
+            "LEFT JOIN  aClass.course " +
+            "LEFT JOIN  aClass.course.term AS Term " +
+            "WHERE aClass.status = ?1 AND Term.term = ?2")
+    List<Class> findByStatusAndTerm(String status, String termName);
+
+    List<Class> findByStatus(String status);
+
     @Query(nativeQuery = true, value = "SELECT u.name ,COUNT(*) AS teachCnt \n" +
             "FROM `class` c \n" +
             "LEFT JOIN `user` u ON u.id = c.user_id \n" +

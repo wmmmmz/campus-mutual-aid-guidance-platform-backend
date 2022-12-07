@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.details;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.util.List;
 public class TermDetails {
     private String name;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private List<Date> dateList;
 
     private BigInteger courseCnt;

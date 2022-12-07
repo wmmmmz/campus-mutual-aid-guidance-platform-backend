@@ -253,6 +253,26 @@ public class ClassController {
         return resultTool;
     }
 
+    @GetMapping("/getClassStatistic")
+    public ResultTool getClassStatistic(@RequestParam(required = false) String termName){
+        ResultTool resultTool = new ResultTool();
+        List<PieData> pieDataList = new ArrayList<>();
+        List<Class> classList = new ArrayList<>();
+        if (StringUtils.isEmpty(termName) || (!StringUtils.isEmpty(termName) && "所有学期".equals(termName))){
+            classList = classRepository.findByStatus(Status.START_CLASS_SUCCESS.getLabel());
+        }else{
+            classList = classRepository.findByStatusAndTerm(Status.START_CLASS_SUCCESS.getLabel(), termName);
+        }
+        Map<String, List<Class>> courseCollection = classList.stream().collect(Collectors.groupingBy(aClass -> aClass.getCourse().getName()));
+        for(Map.Entry<String, List<Class>> map : courseCollection.entrySet()){
+            pieDataList.add(new PieData(map.getKey(), map.getValue().size()));
+        }
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        resultTool.setData(pieDataList);
+        return resultTool;
+    }
+
     private ResultTool getErrorMessage(ClassDetails classDetails, boolean isUpdate){
         ResultTool resultTool = new ResultTool();
         if (StringUtils.isEmpty(classDetails.getClassName())){
