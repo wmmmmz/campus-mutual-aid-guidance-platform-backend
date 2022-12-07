@@ -102,7 +102,7 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     @Query(nativeQuery = true, value = "SELECT u.name ,COUNT(*) AS teachCnt \n" +
             "FROM `class` c \n" +
             "LEFT JOIN `user` u ON u.id = c.user_id \n" +
-            "WHERE c.status = '已开班'\n" +
+            "WHERE c.status = '已开班' AND c.user_id != ''\n" +
             "GROUP BY c.user_id \n" +
             "ORDER BY teachCnt DESC")
     List<Map<String, Object>> getStarTeacher();
