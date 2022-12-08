@@ -2,10 +2,7 @@ package com.wmz.campusplatform.controller;
 
 import com.wmz.campusplatform.convert.NotifyAnnounceDetailConvert;
 import com.wmz.campusplatform.details.NotifyAnnounceDetails;
-import com.wmz.campusplatform.pojo.NotifyAnnounce;
-import com.wmz.campusplatform.pojo.ResultTool;
-import com.wmz.campusplatform.pojo.ReturnMessage;
-import com.wmz.campusplatform.pojo.User;
+import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.NotifyAnnounceRepository;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.utils.StringUtils;
@@ -50,9 +47,9 @@ public class NotifyAnnounceController {
         }else if (StringUtils.isEmpty(notifyAnnounceDetails.getContent())){
             resultTool.setCode(ReturnMessage.NULL_NOTIFY_CONTENT.getCodeNum());
             resultTool.setMessage(ReturnMessage.NULL_NOTIFY_CONTENT.getCodeMessage());
-        }else if (notifyAnnounceDetails.getReceiverRole() == null){
-            resultTool.setCode(ReturnMessage.NULL_NOTIFY_CONTENT.getCodeNum());
-            resultTool.setMessage(ReturnMessage.NULL_NOTIFY_CONTENT.getCodeMessage());
+        }else if (notifyAnnounceDetails.getReceiverRole().size() == 0){
+            resultTool.setCode(ReturnMessage.NULL_NOTIFY_RECEIVER.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_NOTIFY_RECEIVER.getCodeMessage());
         } else {
             NotifyAnnounce notifyAnnounce = notifyAnnounceDetailConvert.notifyAnnounceDetailConvert(notifyAnnounceDetails);
             notifyAnnounce.setAuto(false);
@@ -75,9 +72,15 @@ public class NotifyAnnounceController {
                                      @RequestParam String role,
                                      @RequestParam(required = false) String query){
         ResultTool resultTool = new ResultTool();
-        User sender = userRepository.findByStuIdAndRole(stuId, role);
+        User sender = null;
         List<NotifyAnnounceDetails> notifyAnnounceDetailsList = new ArrayList<>();
-        List<Map<String, Object>> notifyAnnounceList = notifyAnnounceRepository.findBySenderAndQuery(sender.getId(), query, false);
+        List<Map<String, Object>> notifyAnnounceList = null;
+        if (Role.admin.name().equals(role)){
+            notifyAnnounceList = notifyAnnounceRepository.findByAllAdminSenderAndQuery(query, false);
+        }else{
+            sender = userRepository.findByStuIdAndRole(stuId, role);
+            notifyAnnounceList = notifyAnnounceRepository.findBySenderAndQuery(sender.getId(), query, false);
+        }
         for (Map<String, Object> notifyAnnounce : notifyAnnounceList) {
             NotifyAnnounceDetails notifyAnnounceDetails = new NotifyAnnounceDetails();
             for(Map.Entry<String, Object> m : notifyAnnounce.entrySet()){
@@ -93,6 +96,18 @@ public class NotifyAnnounceController {
                         break;
                     case "unreadCnt":
                         notifyAnnounceDetails.setUnreadCnt((BigInteger) m.getValue());
+                        break;
+                    case "name":
+                        notifyAnnounceDetails.setSenderName((String) m.getValue());
+                        break;
+                    case "class_name":
+                        notifyAnnounceDetails.setSenderClassName((String) m.getValue());
+                        break;
+                    case "wx":
+                        notifyAnnounceDetails.setSenderWx((String) m.getValue());
+                        break;
+                    case "tel":
+                        notifyAnnounceDetails.setSenderTel((String) m.getValue());
                         break;
                 }
             }
@@ -139,14 +154,23 @@ public class NotifyAnnounceController {
         String status = (String) map.get("status");
         String stuId = (String) map.get("stuId");
         String role = (String) map.get("role");
-        User user = userRepository.findByStuIdAndRole(stuId, role);
-        Integer userId = user.getId();
         Boolean readAll = (Boolean) map.get("readAll");
-        if (readAll){
-            notifyAnnounceRepository.changeAllStatus(userId, status);
-        }else {
-            notifyAnnounceRepository.changeStatus(notifyId, userId, status);
+        if (Role.admin.name().equals(role)){
+            if (readAll){
+                notifyAnnounceRepository.adminChangeAllStatus(status);
+            }else {
+                notifyAnnounceRepository.adminChangeStatus(notifyId, status);
+            }
+        }else{
+            User user = userRepository.findByStuIdAndRole(stuId, role);
+            Integer userId = user.getId();
+            if (readAll){
+                notifyAnnounceRepository.changeAllStatus(userId, status);
+            }else {
+                notifyAnnounceRepository.changeStatus(notifyId, userId, status);
+            }
         }
+
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
@@ -157,9 +181,13 @@ public class NotifyAnnounceController {
         ResultTool resultTool = new ResultTool();
         String stuId = map.get("stuId");
         String role = map.get("role");
-        User user = userRepository.findByStuIdAndRole(stuId, role);
-        Integer userId = user.getId();
-        notifyAnnounceRepository.deleteRecycleNotify(userId);
+        if (Role.admin.name().equals(role)){
+            notifyAnnounceRepository.adminDeleteRecycleNotify();
+        }else{
+            User user = userRepository.findByStuIdAndRole(stuId, role);
+            Integer userId = user.getId();
+            notifyAnnounceRepository.deleteRecycleNotify(userId);
+        }
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;

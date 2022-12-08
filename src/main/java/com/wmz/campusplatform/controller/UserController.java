@@ -126,7 +126,12 @@ public class UserController {
     public ResultTool getNotifyList(@RequestParam String stuId, String role){
         ResultTool resultTool = new ResultTool();
         User user = userRepository.findByStuIdAndRole(stuId, role);
-        List<Map<String, Object>> notifyOfUserWithStatus = notifyAnnounceRepository.findNotifyOfUserWithStatus(user.getId());
+        List<Map<String, Object>> notifyOfUserWithStatus = null;
+        if (Role.admin.name().equals(role)){
+            notifyOfUserWithStatus = notifyAnnounceRepository.findNotifyOfAllAdminWithStatus();
+        }else {
+            notifyOfUserWithStatus = notifyAnnounceRepository.findNotifyOfUserWithStatus(user.getId());
+        }
         List<NotifyAnnounceWithStatus> notifyAnnounceWithStatuses = new ArrayList<>();
         for (Map<String, Object> ofUserWithStatus : notifyOfUserWithStatus) {
             NotifyAnnounceWithStatus notifyAnnounceWithStatus = new NotifyAnnounceWithStatus();

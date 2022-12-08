@@ -14,6 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 public class NotifyAnnounceDetails {
 
+    private String senderName;
+
+    private String senderClassName;
+
+    private String senderTel;
+
+    private String senderWx;
+
     private String senderStuId;
 
     private String senderRole;
