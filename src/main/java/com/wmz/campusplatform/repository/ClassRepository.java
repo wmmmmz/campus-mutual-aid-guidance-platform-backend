@@ -77,17 +77,21 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
 
     @Query(nativeQuery = true, value = "SELECT c.name as className, c2.name as courseName, c.day\n" +
             ", c.start_time as startTime, c.end_time as endTime, room.room_name as roomName, u.name AS teacherName" +
-            ", u.tel AS teacherTel, u.wx AS teacherWx, u.class_name AS teacherClass\n" +
+            ", u.tel AS teacherTel, u.wx AS teacherWx, u.class_name AS teacherClass \n" +
             "FROM class c \n" +
             "LEFT JOIN `user` u ON u.id = c.user_id \n" +
             "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
             "LEFT JOIN term t ON t.id = c2.term_id \n" +
             "LEFT JOIN room ON c.room_id = room.id \n" +
-            "WHERE t.term = :termName AND c.status = :status\n" +
+            "WHERE t.term = :termName AND c.status = :status AND c.max_student_count > (" +
+            "SELECT COUNT(*) AS currentStudentCount\n" +
+            "FROM student_enroll_class sec\n" +
+            "WHERE sec.class_id = c.id" +
+            ")\n" +
             "AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
             "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
-            "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
+            "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n ")
     List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
 
     @Query("SELECT aClass " +

@@ -55,7 +55,10 @@ public enum ReturnMessage {
 
     EXIST_CLASS_ENROLL(417, "请勿重复报名"),
 
-    IS_TEACHER(418, "您是该班级的导生");
+    IS_TEACHER(418, "您是该班级的导生"),
+
+    INVALID_STUDENT_UPPER_LIMIT(419, "学生上限数不合法");
+
     private int codeNum;
 
     private String codeMessage;

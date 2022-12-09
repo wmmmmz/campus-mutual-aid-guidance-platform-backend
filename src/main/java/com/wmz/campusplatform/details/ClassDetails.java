@@ -49,6 +49,8 @@ public class ClassDetails {
 
     private String status;
 
+    private Integer maxStudentCount;
+
     public ClassDetails(String className, String courseName, String teacherName, String teacherTel, String teacherWx
             , String teacherClass, String classroom, String day, BigInteger studentCnt, String status) {
         this.className = className;

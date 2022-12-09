@@ -55,6 +55,8 @@ public class ClassDetailsConvert {
 
         aClass.setTencentMeeting(classDetails.getTencentMeeting());
 
+        aClass.setMaxStudentCount(classDetails.getMaxStudentCount());
+
         aClass.setStartTime(classDetails.getDateList().get(0));
         aClass.setEndTime(classDetails.getDateList().get(1));
         return aClass;

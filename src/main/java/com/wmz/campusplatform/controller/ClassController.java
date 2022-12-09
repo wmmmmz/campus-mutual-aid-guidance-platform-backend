@@ -293,6 +293,9 @@ public class ClassController {
         }else if (StringUtils.isEmpty(classDetails.getClassroom())){
             resultTool.setCode(ReturnMessage.NULL_CLASS_FORM.getCodeNum());
             resultTool.setMessage(ReturnMessage.NULL_CLASS_FORM.getCodeMessage());
+        }else if (classDetails.getMaxStudentCount() <= 0){
+            resultTool.setCode(ReturnMessage.INVALID_STUDENT_UPPER_LIMIT.getCodeNum());
+            resultTool.setMessage(ReturnMessage.INVALID_STUDENT_UPPER_LIMIT.getCodeMessage());
         }else {
             resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
             resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());

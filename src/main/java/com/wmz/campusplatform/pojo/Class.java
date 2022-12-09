@@ -41,6 +41,8 @@ public class Class {
 
     private String status;
 
+    private Integer maxStudentCount;
+
     //class的学生列表
     @ManyToMany
     @JsonIgnoreProperties("classList")
@@ -162,6 +164,14 @@ public class Class {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Integer getMaxStudentCount() {
+        return maxStudentCount;
+    }
+
+    public void setMaxStudentCount(Integer maxStudentCount) {
+        this.maxStudentCount = maxStudentCount;
     }
 
     public List<User> getStudentList() {
