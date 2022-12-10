@@ -75,10 +75,15 @@ public class TermController {
     }
 
     @GetMapping("/getTermDataList")
-    public ResultTool getTermDataList(@RequestParam(required = false) String query){
+    public ResultTool getTermDataList(@RequestParam(required = false) String query
+                                    , @RequestParam(required = false) Integer pageSize
+                                    , @RequestParam(required = false) Integer pageIndex){
         ResultTool resultTool = new ResultTool();
         List<TermDetails> dataList = new ArrayList<>();
-        List<Map<String, Object>> termList = termRepository.findTermList(query);
+        List<Map<String, Object>> termList = null;
+        Integer offSet = pageSize * (pageIndex - 1);
+        Integer termTotalSize = termRepository.findTermTotalSize(query);
+        termList = termRepository.findTermList(query, pageSize, offSet);
         for (Map<String, Object> termStatisticsDetails : termList) {
             Date startTime = null, endTime = null;
             TermDetails termDetails = new TermDetails();
@@ -107,9 +112,12 @@ public class TermController {
             termDetails.setDateList(dateList);
             dataList.add(termDetails);
         }
+        Map<String, Object> result = new HashMap<>();
+        result.put("dataList", dataList);
+        result.put("totalSize", termTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(dataList);
+        resultTool.setData(result);
         return resultTool;
     }
 

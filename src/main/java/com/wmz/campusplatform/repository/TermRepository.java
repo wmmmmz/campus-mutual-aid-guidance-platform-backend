@@ -20,8 +20,14 @@ public interface TermRepository extends JpaRepository<Term, Integer> {
             "left JOIN course on term.id = course.term_id \n" +
             "left JOIN class on class.course_id = course.id AND class.status = '已开班'\n" +
             "WHERE term.term like CONCAT('%' ,ifNull(:query,'') ,'%') OR term.start_time like CONCAT('%' ,ifNull(:query,'') ,'%') OR term.end_time  like CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
-            "GROUP BY term.id ")
-    List<Map<String, Object>> findTermList(String query);
+            "GROUP BY term.id " +
+            "LIMIT :limit OFFSET :offSet")
+    List<Map<String, Object>> findTermList(String query, Integer limit, Integer offSet);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) \n" +
+            "FROM term \n" +
+            "WHERE term.term like CONCAT('%' ,ifNull(:query,'') ,'%') OR term.start_time like CONCAT('%' ,ifNull(:query,'') ,'%') OR term.end_time  like CONCAT('%' ,ifNull(:query,'') ,'%')\n")
+    Integer findTermTotalSize(String query);
 
     @Transactional
     void deleteByTerm(String term);
