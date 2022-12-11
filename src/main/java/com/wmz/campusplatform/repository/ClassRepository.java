@@ -2,14 +2,13 @@ package com.wmz.campusplatform.repository;
 
 import com.wmz.campusplatform.pojo.Class;
 import com.wmz.campusplatform.pojo.User;
-import io.swagger.models.auth.In;
-import org.hibernate.loader.collection.OneToManyJoinWalker;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import org.springframework.data.domain.Pageable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +42,19 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "WHERE term.term = ?2 AND " +
             "(aClass.name LIKE CONCAT('%' , ?1 ,'%') OR course.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.day LIKE CONCAT('%' , ?1 ,'%') " +
             "OR room.roomName LIKE CONCAT('%' , ?1 ,'%') " +
-            "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))"   )
-    List<Class> findClassDataList(String query, String termName);
+            "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))")
+    List<Class> findClassDataListByPage(String query, String termName, Pageable pageable);
+
+    @Query(value = "SELECT COUNT(aClass) FROM Class AS aClass " +
+            "LEFT JOIN aClass.room AS room " +
+            "LEFT JOIN aClass.user AS user " +
+            "LEFT JOIN aClass.course AS course " +
+            "LEFT JOIN aClass.course.term AS term " +
+            "WHERE term.term = ?2 AND " +
+            "(aClass.name LIKE CONCAT('%' , ?1 ,'%') OR course.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.day LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR room.roomName LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))")
+    Integer findClassTotalSizeByTerm(String query, String termName);
 
     @Query(value = "SELECT aClass FROM Class AS aClass " +
             "LEFT JOIN aClass.room AS room " +
@@ -55,7 +65,19 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "(aClass.name LIKE CONCAT('%' , ?1 ,'%') OR course.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.day LIKE CONCAT('%' , ?1 ,'%') " +
             "OR room.roomName LIKE CONCAT('%' , ?1 ,'%') " +
             "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))"   )
-    List<Class> findMyTeachClassDataList(String query, String termName, String status, Integer userId);
+    List<Class> findMyTeachClassDataListByPage(String query, String termName, String status, Integer userId, Pageable pageable);
+
+
+    @Query(value = "SELECT COUNT(aClass) FROM Class AS aClass " +
+            "LEFT JOIN aClass.room AS room " +
+            "LEFT JOIN aClass.user AS user " +
+            "LEFT JOIN aClass.course AS course " +
+            "LEFT JOIN aClass.course.term AS term " +
+            "WHERE term.term = ?2 AND user.id = ?4 AND aClass.status = ?3 AND " +
+            "(aClass.name LIKE CONCAT('%' , ?1 ,'%') OR course.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.day LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR room.roomName LIKE CONCAT('%' , ?1 ,'%') " +
+            "OR user.name LIKE CONCAT('%' , ?1 ,'%') OR aClass.status LIKE CONCAT('%' , ?1 ,'%'))"   )
+    Integer findMyTeachClassTotalSize(String query, String termName, String status, Integer userId);
 
     @Query(value = "SELECT aClass FROM Class AS aClass " +
             "LEFT JOIN aClass.room AS room " +
@@ -91,8 +113,26 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
             "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
+            "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n " +
+            "LIMIT :limit OFFSET :offset")
+    List<Map<String, Object>> findByStatusAndTermNameByPage(String query, String termName, String status, Integer limit, Integer offset);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) \n" +
+            "FROM class c \n" +
+            "LEFT JOIN `user` u ON u.id = c.user_id \n" +
+            "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
+            "LEFT JOIN term t ON t.id = c2.term_id \n" +
+            "LEFT JOIN room ON c.room_id = room.id \n" +
+            "WHERE t.term = :termName AND c.status = :status AND c.max_student_count > (" +
+            "SELECT COUNT(*) AS currentStudentCount\n" +
+            "FROM student_enroll_class sec\n" +
+            "WHERE sec.class_id = c.id" +
+            ")\n" +
+            "AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
+            "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
+            "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
             "OR u.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n ")
-    List<Map<String, Object>> findByStatusAndTermName(String query, String termName, String status);
+    Integer getClassTotalSizeByStatusAndTerm(String query, String termName, String status);
 
     @Query("SELECT aClass " +
             "FROM Class AS aClass " +
@@ -137,8 +177,25 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.enroll_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
             "OR te.interview_start_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.interview_end_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
             "OR te.success_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
-            "OR te.status LIKE CONCAT('%' ,ifNull(:query,'') ,'%')) ")
-    List<Map<String, Object>> getTeachEnrollDataList(String query, String termName, String stuId);
+            "OR te.status LIKE CONCAT('%' ,ifNull(:query,'') ,'%')) " +
+            "LIMIT :limit OFFSET :offset")
+    List<Map<String, Object>> getTeachEnrollDataListByPage(String query, String termName, String stuId, Integer limit, Integer offset);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) " +
+            "FROM teach_enroll te \n" +
+            "LEFT JOIN `user` u ON u.id = te.user_id \n" +
+            "LEFT JOIN class c ON c.id = class_id \n" +
+            "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
+            "LEFT JOIN term ON term.id = c2.term_id \n" +
+            "LEFT JOIN room ON room.id = c.room_id \n" +
+            "WHERE term.term = :termName AND u.stu_id = :stuId AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.enroll_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR te.interview_start_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.interview_end_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR te.success_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
+            "OR te.status LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))")
+    Integer getTeachEnrollTotalSize(String query, String termName, String stuId);
 
     @Query(nativeQuery = true, value = "SELECT u.name AS studentName, u.tel AS studentTel, u.wx As studentWx" +
             ", u.class_name AS studentClass, c.name AS className, c2.name AS courseName, c.day, c.start_time AS startTime\n" +
@@ -157,8 +214,25 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.enroll_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
             "OR te.interview_start_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.interview_end_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
             "OR te.success_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
+            "OR te.status LIKE CONCAT('%' ,ifNull(:query,'') ,'%')) " +
+            "LIMIT :limit OFFSET :offset")
+    List<Map<String, Object>> getAllTeachEnrollDataListByPage(String query, String termName, Integer limit, Integer offset);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) " +
+            "FROM teach_enroll te \n" +
+            "LEFT JOIN `user` u ON u.id = te.user_id \n" +
+            "LEFT JOIN class c ON c.id = class_id \n" +
+            "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
+            "LEFT JOIN term ON term.id = c2.term_id \n" +
+            "LEFT JOIN room ON room.id = c.room_id \n" +
+            "WHERE term.term = :termName AND (c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.enroll_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR te.interview_start_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR te.interview_end_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR te.success_date LIKE CONCAT('%' ,ifNull(:query,'') ,'%')" +
             "OR te.status LIKE CONCAT('%' ,ifNull(:query,'') ,'%')) ")
-    List<Map<String, Object>> getAllTeachEnrollDataList(String query, String termName);
+    Integer getAllTeachEnrollTotalSizeByTerm(String query, String termName);
 
     @Modifying
     @Transactional
@@ -230,8 +304,23 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
             "OR c.tencent_meeting LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR `user`.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n" +
-            "GROUP BY c.id ")
-    List<Map<String, Object>> getMyClassEnrollDataList(String query, String termName, Integer userId);
+            "GROUP BY c.id " +
+            "LIMIT :limit OFFSET :offset")
+    List<Map<String, Object>> getMyClassEnrollDataListByPage(String query, String termName, Integer userId, Integer limit, Integer offset);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) " +
+            "FROM class c \n" +
+            "LEFT JOIN course c2 ON c2.id = c.course_id \n" +
+            "LEFT JOIN term t ON t.id = c2.term_id \n" +
+            "LEFT JOIN student_enroll_class sec ON sec.class_id = c.id \n" +
+            "LEFT JOIN room ON c.room_id = room.id \n" +
+            "LEFT JOIN `user` ON `user`.id = c.user_id \n" +
+            "WHERE t.term = :termName AND sec.user_id = :userId AND\n" +
+            "(c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
+            "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
+            "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
+            "OR c.tencent_meeting LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR `user`.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%'))\n")
+    Integer getMyClassEnrollTotalSizeByTerm(String query, String termName, Integer userId);
 
     @Modifying
     @Transactional

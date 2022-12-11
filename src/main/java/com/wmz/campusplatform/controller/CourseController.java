@@ -4,6 +4,8 @@ import com.wmz.campusplatform.details.CourseDetails;
 import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.CourseRepository;
 import com.wmz.campusplatform.repository.TermRepository;
+import com.wmz.campusplatform.service.PageService;
+import com.wmz.campusplatform.service.TermService;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,26 +28,30 @@ public class CourseController {
     @Autowired
     private TermRepository termRepository;
 
+    @Autowired
+    private TermService termService;
+
+    @Autowired
+    private PageService pageService;
+
     @GetMapping("/getCourseDataList")
-    public ResultTool getCourseDataList(@RequestParam(required = false) String query, String termName) {
+    public ResultTool getCourseDataList(@RequestParam(required = false) String query, String termName
+                                       ,@RequestParam(required = false) Integer pageSize
+                                       ,@RequestParam(required = false) Integer pageIndex) {
         ResultTool resultTool = new ResultTool();
-        if (StringUtils.isEmpty(termName)) {
-            Term termByDate = termRepository.findTermByDate(new Date());
-            if (termByDate == null) {
-                log.error("学期不存在");
-            } else {
-                termName = termByDate.getTerm();
-            }
-        }
+        termName = termService.getTermVerified(termName);
         List<CourseDetails> courseDetailsList = new ArrayList<>();
-        List<Map<String, Object>> courseDetailList = courseRepository.findCourseDetailList(query, termName);
+        Integer offSet = pageSize * (pageIndex - 1);
+        Integer totalSize = courseRepository.findCourseTotalSizeByTerm(query, termName);
+        List<Map<String, Object>> courseDetailList = courseRepository.findCourseDetailListByPage(query, termName, pageSize, offSet);
         for (Map<String, Object> courseDetail : courseDetailList) {
             CourseDetails courseDetails = new CourseDetails((String) courseDetail.get("name"), (BigInteger) courseDetail.get("classCnt"));
             courseDetailsList.add(courseDetails);
         }
+        Map<String, Object> pageData = pageService.getPageData(courseDetailsList, totalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(courseDetailsList);
+        resultTool.setData(pageData);
         return resultTool;
     }
 

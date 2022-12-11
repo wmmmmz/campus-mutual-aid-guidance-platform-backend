@@ -15,6 +15,7 @@ public enum Status {
     INTERRUPTED("流程中断"),
     UNREADED,
     READED,
+    RECYCLE,
     TENCENT_MEETING_URL("https://meeting.tencent.com/user-center/joining?meeting_code="),
 
     DEFAULT_PASSWORD("96e79218965eb72c92a549dd5a330112"),

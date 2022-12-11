@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PostMapping;
-
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +18,25 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             "LEFT JOIN class c2 ON c2.course_id  = c.id AND c2.status = '已开班' \n" +
             "WHERE t.term  = :termName\n" +
             "AND (t.term like CONCAT('%' ,ifNull(:query,'') ,'%') OR c.name  like CONCAT('%' ,ifNull(:query,'') ,'%') )\n" +
+            "GROUP BY c.name " +
+            "LIMIT :limit OFFSET :offset")
+    List<Map<String, Object>> findCourseDetailListByPage(String query, String termName, Integer limit, Integer offset);
+
+    @Query(nativeQuery = true, value = "SELECT c.name, COUNT(c2.id) as classCnt\n" +
+            "FROM course c \n" +
+            "LEFT JOIN term t ON t.id  = c.term_id \n" +
+            "LEFT JOIN class c2 ON c2.course_id  = c.id AND c2.status = '已开班' \n" +
+            "WHERE t.term  = :termName\n" +
+            "AND (t.term like CONCAT('%' ,ifNull(:query,'') ,'%') OR c.name like CONCAT('%' ,ifNull(:query,'') ,'%') )\n" +
             "GROUP BY c.name")
     List<Map<String, Object>> findCourseDetailList(String query, String termName);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*)" +
+            "FROM course c \n" +
+            "LEFT JOIN term t ON t.id  = c.term_id " +
+            "WHERE t.term  = :termName \n" +
+            "AND (t.term like CONCAT('%' ,ifNull(:query,'') ,'%') OR c.name like CONCAT('%' ,ifNull(:query,'') ,'%') )\n")
+    Integer findCourseTotalSizeByTerm(String query, String termName);
 
     @Modifying
     @Transactional

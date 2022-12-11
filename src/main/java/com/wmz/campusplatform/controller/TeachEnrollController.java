@@ -6,17 +6,12 @@ import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.pojo.Class;
 import com.wmz.campusplatform.repository.ClassRepository;
 import com.wmz.campusplatform.repository.UserRepository;
-import com.wmz.campusplatform.service.FileUploadService;
-import com.wmz.campusplatform.service.MongoDBService;
-import com.wmz.campusplatform.service.NotifyService;
-import com.wmz.campusplatform.service.TermService;
+import com.wmz.campusplatform.service.*;
 import com.wmz.campusplatform.utils.MongoAutoIdUtil;
 import com.wmz.campusplatform.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.OneToOne;
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,6 +44,9 @@ public class TeachEnrollController {
 
     @Autowired
     private MongoAutoIdUtil mongoAutoIdUtil;
+
+    @Autowired
+    private PageService pageService;
 
     @PostMapping("/checkEnroll")
     public ResultTool checkEnroll(@RequestBody Map<String, Object> map){
@@ -103,15 +101,21 @@ public class TeachEnrollController {
     @GetMapping("/getTeachEnrollDataList")
     public ResultTool getTeachEnrollDataList(@RequestParam(required = false) String query,
                                              @RequestParam String termName,
-                                             @RequestParam(required = false) String stuId){
+                                             @RequestParam(required = false) String stuId
+                                           , @RequestParam(required = false) Integer pageSize
+                                           , @RequestParam(required = false) Integer pageIndex){
         ResultTool resultTool = new ResultTool();
         termName = termService.getTermVerified(termName);
+        Integer offSet = pageSize * (pageIndex - 1);
         List<TeachEnrollDetails> teachEnrollDetails = new ArrayList<>();
         List<Map<String, Object>> teachEnrollDataList = null;
+        Integer teachEnrollTotalSize = 0;
         if (!StringUtils.isEmpty(stuId)){
-            teachEnrollDataList  = classRepository.getTeachEnrollDataList(query, termName, stuId);
+            teachEnrollTotalSize = classRepository.getTeachEnrollTotalSize(query, termName, stuId);
+            teachEnrollDataList  = classRepository.getTeachEnrollDataListByPage(query, termName, stuId, pageSize, offSet);
         }else {
-            teachEnrollDataList = classRepository.getAllTeachEnrollDataList(query, termName);
+            teachEnrollTotalSize = classRepository.getAllTeachEnrollTotalSizeByTerm(query, termName);
+            teachEnrollDataList = classRepository.getAllTeachEnrollDataListByPage(query, termName, pageSize, offSet);
         }
         for (Map<String, Object> teachData : teachEnrollDataList) {
             String fileName = teachData.get("studentName") + "_" + termName + "_" + teachData.get("className");
@@ -173,9 +177,10 @@ public class TeachEnrollController {
             teachEnrollDetail.setInterviewDate(interviewDate);
             teachEnrollDetails.add(teachEnrollDetail);
         }
+        Map<String, Object> pageData = pageService.getPageData(teachEnrollDetails, teachEnrollTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(teachEnrollDetails);
+        resultTool.setData(pageData);
         return resultTool;
     }
 

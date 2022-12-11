@@ -7,8 +7,8 @@ import com.wmz.campusplatform.pojo.ReturnMessage;
 import com.wmz.campusplatform.pojo.Term;
 import com.wmz.campusplatform.pojo.TreeSelectData;
 import com.wmz.campusplatform.repository.TermRepository;
+import com.wmz.campusplatform.service.PageService;
 import com.wmz.campusplatform.utils.StringUtils;
-import io.swagger.models.auth.In;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +26,9 @@ public class TermController {
 
     @Autowired
     private TermDetailsConvert termDetailsConvert;
+
+    @Autowired
+    private PageService pageService;
 
     @PostMapping("/saveTerm")
     public ResultTool saveTerm(@RequestBody TermDetails termDetails){
@@ -112,12 +115,10 @@ public class TermController {
             termDetails.setDateList(dateList);
             dataList.add(termDetails);
         }
-        Map<String, Object> result = new HashMap<>();
-        result.put("dataList", dataList);
-        result.put("totalSize", termTotalSize);
+        Map<String, Object> pageData = pageService.getPageData(dataList, termTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(result);
+        resultTool.setData(pageData);
         return resultTool;
     }
 

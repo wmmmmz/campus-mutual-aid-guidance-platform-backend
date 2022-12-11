@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -123,10 +122,13 @@ public class UserController {
     }
 
     @GetMapping("/getNotifyList")
-    public ResultTool getNotifyList(@RequestParam String stuId, String role){
+    public ResultTool getNotifyList(@RequestParam String stuId, String role,
+                                    @RequestParam(required = false) Integer pageIndex,
+                                    @RequestParam(required = false) Integer pageSize){
         ResultTool resultTool = new ResultTool();
         User user = userRepository.findByStuIdAndRole(stuId, role);
         List<Map<String, Object>> notifyOfUserWithStatus = null;
+        Integer offSet = pageSize * (pageIndex - 1);
         if (Role.admin.name().equals(role)){
             notifyOfUserWithStatus = notifyAnnounceRepository.findNotifyOfAllAdminWithStatus();
         }else {
@@ -152,10 +154,30 @@ public class UserController {
             }
             notifyAnnounceWithStatuses.add(notifyAnnounceWithStatus);
         }
-        Map<String, List<NotifyAnnounceWithStatus>> collect = notifyAnnounceWithStatuses.stream().collect(Collectors.groupingBy(data -> data.getStatus()));
+        Map<String, List<NotifyAnnounceWithStatus>> collect = notifyAnnounceWithStatuses.stream()
+                //sort by create time DESC
+                .sorted(Comparator.comparing(NotifyAnnounceWithStatus::getCreateTime).reversed())
+                //collect by status UNREADED, READ, RECYCLE
+                .collect(Collectors.groupingBy(NotifyAnnounceWithStatus::getStatus));
+         Map<String, List<NotifyAnnounceWithStatus>> dataList = new HashMap<>();
+        Integer UnreadTotalSize = collect.getOrDefault(Status.UNREADED.name(), new ArrayList<>()).size();
+        Integer readTotalSize = collect.getOrDefault(Status.READED.name(), new ArrayList<>()).size();
+        Integer recycleTotalSize = collect.getOrDefault(Status.RECYCLE.name(), new ArrayList<>()).size();
+        for(Map.Entry<String, List<NotifyAnnounceWithStatus>> map : collect.entrySet()){
+            if (offSet < Math.min(offSet + pageSize, map.getValue().size())){
+                dataList.put(map.getKey(), map.getValue().subList(offSet, Math.min(offSet + pageSize, map.getValue().size())));
+            }else {
+                dataList.put(map.getKey(), new ArrayList<>());
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("dataList", dataList);
+        result.put("UnreadTotalSize", UnreadTotalSize);
+        result.put("readTotalSize", readTotalSize);
+        result.put("recycleTotalSize", recycleTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(collect);
+        resultTool.setData(result);
         return resultTool;
     }
 }

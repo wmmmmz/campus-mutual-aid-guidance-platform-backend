@@ -8,10 +8,12 @@ import com.wmz.campusplatform.repository.ClassRepository;
 import com.wmz.campusplatform.repository.TermRepository;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.service.NotifyService;
+import com.wmz.campusplatform.service.PageService;
 import com.wmz.campusplatform.service.TermService;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
@@ -40,6 +42,9 @@ public class ClassController {
 
     @Autowired
     private NotifyService notifyService;
+
+    @Autowired
+    private PageService pageService;
 
     @PostMapping("/saveClass")
     public ResultTool saveClass(@RequestBody ClassDetails classDetails){
@@ -100,16 +105,24 @@ public class ClassController {
                                      , @RequestParam(required = false) String termName
                                      , @RequestParam(required = false) String status
                                      , @RequestParam(required = false) String role
-                                     , @RequestParam(required = false) String stuId){
+                                     , @RequestParam(required = false) String stuId
+                                     , @RequestParam(required = false) Integer pageSize
+                                     , @RequestParam(required = false) Integer pageIndex){
         ResultTool resultTool = new ResultTool();
         String term = termService.getTermVerified(termName);
         List<Class> classDetailsList = null;
+        Integer offSet = pageSize * (pageIndex - 1);
+        Map<String, Object> result = null;
+        Integer classTotalSize = 0;
         if (Role.admin.name().equals(role)){
-            classDetailsList = classRepository.findClassDataList(query, term);
+            classTotalSize = classRepository.findClassTotalSizeByTerm(query, term);
+            classDetailsList = classRepository.findClassDataListByPage(query, term, PageRequest.of(pageIndex - 1, pageSize));
         }else if (Role.teacher.name().equals(role)){
             User teacher = userRepository.findByStuIdAndRole(stuId, role);
             Integer userId = teacher.getId();
-            classDetailsList = classRepository.findMyTeachClassDataList(query, term, Status.START_CLASS_SUCCESS.getLabel(), userId);
+            classTotalSize = classRepository.findMyTeachClassTotalSize(query, term, Status.START_CLASS_SUCCESS.getLabel(), userId);
+            classDetailsList = classRepository.findMyTeachClassDataListByPage(query, term
+                    , Status.START_CLASS_SUCCESS.getLabel(), userId, PageRequest.of(pageIndex - 1, pageSize));
         }else if (Role.student.name().equals(role)){
             User student = userRepository.findByStuIdAndRole(stuId, role);
             //get all class list
@@ -128,35 +141,17 @@ public class ClassController {
                                 || !StringUtils.isEmpty(classDetail.getTencentMeeting()) && classDetail.getTencentMeeting().contains(query)
                                 || classDetail.getUser() != null && classDetail.getUser().getName().contains(query)).collect(Collectors.toList());
             }
+            //get class list total size
+            classTotalSize = classDetailsList.size();
+            //get class by page
+            classDetailsList = classDetailsList.subList(offSet, offSet + pageSize > classTotalSize ? classTotalSize : offSet + pageSize);
         }
 
-
-//        List<Map<String, Object>> classDataList = classRepository.findClassDataList(query, termName);
-//        List<ClassDetails> classDetailsList = new ArrayList<>();
-//        for (Map<String, Object> classData : classDataList) {
-//            ClassDetails classDetail = new ClassDetails(
-//                    (String) classData.get("className"),
-//                    (String) classData.get("courseName"),
-//                    (String) classData.get("teacherName"),
-//                    (String) classData.get("teacherTel"),
-//                    (String) classData.get("teacherWx"),
-//                    (String) classData.get("teacherClass"),
-//                    (String)classData.get("roomName"),
-//                    (String) classData.get("day"),
-//                    (BigInteger) classData.get("studentCnt"),
-//                    (String) classData.get("status")
-//            );
-//            List<Date> dateList = new ArrayList<>();
-//            dateList.add((Date) classData.get("startTime"));
-//            dateList.add((Date) classData.get("endTime"));
-//            classDetail.setDateList(dateList);
-//            classDetailsList.add(classDetail);
-//        }
+        result = pageService.getPageData(classDetailsList, classTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(classDetailsList);
+        resultTool.setData(result);
         return resultTool;
-
     }
 
     @PostMapping("/deleteClass")
@@ -172,10 +167,14 @@ public class ClassController {
     }
 
     @GetMapping("/getClassByStatus")
-    public ResultTool getClassByStatus(@RequestParam(required = false) String query, String termName, String status){
+    public ResultTool getClassByStatus(@RequestParam(required = false) String query, String termName, String status,
+                                       @RequestParam(required = false) Integer pageIndex,
+                                       @RequestParam(required = false) Integer pageSize){
         ResultTool resultTool = new ResultTool();
         termName = termService.getTermVerified(termName);
-        List<Map<String, Object>> classList = classRepository.findByStatusAndTermName(query, termName, status);
+        Integer offSet = pageSize * (pageIndex - 1);
+        Integer classTotalSize = classRepository.getClassTotalSizeByStatusAndTerm(query, termName, status);
+        List<Map<String, Object>> classList = classRepository.findByStatusAndTermNameByPage(query, termName, status, pageSize, offSet);
         List<ClassDetails> classDetailsList = new ArrayList<>();
         for (Map<String, Object> classData : classList) {
             ClassDetails classDetails = new ClassDetails(
@@ -193,9 +192,10 @@ public class ClassController {
             classDetails.setDateList(dateList);
             classDetailsList.add(classDetails);
         }
+        Map<String, Object> pageData = pageService.getPageData(classDetailsList, classTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(classDetailsList);
+        resultTool.setData(pageData);
         return resultTool;
     }
 

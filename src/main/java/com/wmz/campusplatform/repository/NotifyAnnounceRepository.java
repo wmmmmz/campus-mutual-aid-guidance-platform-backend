@@ -1,7 +1,6 @@
 package com.wmz.campusplatform.repository;
 
 import com.wmz.campusplatform.pojo.NotifyAnnounce;
-import io.swagger.models.auth.In;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,8 +33,16 @@ public interface NotifyAnnounceRepository extends JpaRepository<NotifyAnnounce, 
             "\tWHERE `user`.`role` = 'admin'\n" +
             "\t) AND nar.status = 'UNREADED' AND " +
             "(title like CONCAT('%' ,ifNull(:query,'') ,'%') OR content like CONCAT('%' ,ifNull(:query,'') ,'%') OR create_time like CONCAT('%' ,ifNull(:query,'') ,'%')\n)" +
-            "group by notify_announce.id")
-    List<Map<String, Object>> findByAllAdminSenderAndQuery(String query, Boolean isAuto);
+            "group by notify_announce.id " +
+            "LIMIT :limit OFFSET :offset")
+    List<Map<String, Object>> findByAllAdminSenderAndQueryByPage(String query, Boolean isAuto, Integer limit, Integer offset);
+
+    @Query(nativeQuery = true, value = "select COUNT(*) " +
+            "from notify_announce \n" +
+            "left join `user` u on u.id = notify_announce.sender_id  \n" +
+            "where is_auto = :isAuto AND u.`role` = 'admin' AND " +
+            "(title like CONCAT('%' ,ifNull(:query,'') ,'%') OR content like CONCAT('%' ,ifNull(:query,'') ,'%') OR create_time like CONCAT('%' ,ifNull(:query,'') ,'%')\n)")
+    Integer getNotifyAnnounceAdminSendTotalSize(String query, Boolean isAuto);
 
     @Transactional
     void deleteByTitleAndContentAndCreateTime(String title, String content, Date creatTime);

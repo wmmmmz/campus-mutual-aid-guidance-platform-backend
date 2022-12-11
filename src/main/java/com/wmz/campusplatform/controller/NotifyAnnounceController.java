@@ -5,8 +5,8 @@ import com.wmz.campusplatform.details.NotifyAnnounceDetails;
 import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.NotifyAnnounceRepository;
 import com.wmz.campusplatform.repository.UserRepository;
+import com.wmz.campusplatform.service.PageService;
 import com.wmz.campusplatform.utils.StringUtils;
-import io.swagger.models.auth.In;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +32,9 @@ public class NotifyAnnounceController {
 
     @Autowired
     private NotifyAnnounceRepository notifyAnnounceRepository;
+
+    @Autowired
+    private PageService pageService;
 
     /**
      * admin管理员手动发布新通知
@@ -70,17 +73,21 @@ public class NotifyAnnounceController {
     @GetMapping("/getNotifyISent")
     public ResultTool getNotifyISent(@RequestParam String stuId,
                                      @RequestParam String role,
-                                     @RequestParam(required = false) String query){
+                                     @RequestParam(required = false) String query,
+                                     @RequestParam(required = false) Integer pageIndex,
+                                     @RequestParam(required = false) Integer pageSize){
         ResultTool resultTool = new ResultTool();
         User sender = null;
+        Integer offSet = pageSize * (pageIndex - 1);
         List<NotifyAnnounceDetails> notifyAnnounceDetailsList = new ArrayList<>();
         List<Map<String, Object>> notifyAnnounceList = null;
-        if (Role.admin.name().equals(role)){
-            notifyAnnounceList = notifyAnnounceRepository.findByAllAdminSenderAndQuery(query, false);
-        }else{
-            sender = userRepository.findByStuIdAndRole(stuId, role);
-            notifyAnnounceList = notifyAnnounceRepository.findBySenderAndQuery(sender.getId(), query, false);
-        }
+//        if (Role.admin.name().equals(role)){
+        Integer notifyTotalSize = notifyAnnounceRepository.getNotifyAnnounceAdminSendTotalSize(query, false);
+        notifyAnnounceList = notifyAnnounceRepository.findByAllAdminSenderAndQueryByPage(query, false, pageSize, offSet);
+//        }else{
+//            sender = userRepository.findByStuIdAndRole(stuId, role);
+//            notifyAnnounceList = notifyAnnounceRepository.findBySenderAndQuery(sender.getId(), query, false);
+//        }
         for (Map<String, Object> notifyAnnounce : notifyAnnounceList) {
             NotifyAnnounceDetails notifyAnnounceDetails = new NotifyAnnounceDetails();
             for(Map.Entry<String, Object> m : notifyAnnounce.entrySet()){
@@ -113,9 +120,10 @@ public class NotifyAnnounceController {
             }
             notifyAnnounceDetailsList.add(notifyAnnounceDetails);
         }
+        Map<String, Object> pageData = pageService.getPageData(notifyAnnounceDetailsList, notifyTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(notifyAnnounceDetailsList);
+        resultTool.setData(pageData);
         return resultTool;
     }
 

@@ -4,6 +4,7 @@ import com.wmz.campusplatform.details.ClassDetails;
 import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.ClassRepository;
 import com.wmz.campusplatform.repository.UserRepository;
+import com.wmz.campusplatform.service.PageService;
 import com.wmz.campusplatform.service.TermService;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/classEnroll")
@@ -32,6 +32,8 @@ public class ClassEnrollController {
     @Autowired
     private TermService termService;
 
+    @Autowired
+    private PageService pageService;
 
     @PostMapping("/saveEnroll")
     public ResultTool saveEnroll(@RequestBody Map<String, Object> map){
@@ -61,11 +63,15 @@ public class ClassEnrollController {
     }
 
     @GetMapping("/getClassEnrollDataList")
-    public ResultTool getClassEnrollDataList(@RequestParam(required = false) String query, String termName, String stuId){
+    public ResultTool getClassEnrollDataList(@RequestParam(required = false) String query, String termName, String stuId,
+                                             @RequestParam(required = false) Integer pageIndex,
+                                             @RequestParam(required = false) Integer pageSize){
         ResultTool resultTool = new ResultTool();
         String term = termService.getTermVerified(termName);
+        Integer offSet = pageSize * (pageIndex - 1);
         Integer userId = userRepository.findByStuIdAndRole(stuId, Role.student.name()).getId();
-        List<Map<String, Object>> myClassEnrollDataList = classRepository.getMyClassEnrollDataList(query, term, userId);
+        Integer myClassEnrollTotalSize = classRepository.getMyClassEnrollTotalSizeByTerm(query, term, userId);
+        List<Map<String, Object>> myClassEnrollDataList = classRepository.getMyClassEnrollDataListByPage(query, term, userId, pageSize, offSet);
         List<ClassDetails> myClassDetailsList = new ArrayList<>();
         for (Map<String, Object> classData : myClassEnrollDataList) {
             ClassDetails classDetail = new ClassDetails(
@@ -88,9 +94,10 @@ public class ClassEnrollController {
             classDetail.setTencentMeetingUrl(Status.TENCENT_MEETING_URL.getLabel() + classData.get("tencentMeeting"));
             myClassDetailsList.add(classDetail);
         }
+        Map<String, Object> pageData = pageService.getPageData(myClassDetailsList, myClassEnrollTotalSize);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(myClassDetailsList);
+        resultTool.setData(pageData);
         return resultTool;
     }
 
