@@ -4,26 +4,25 @@ CREATE DATABASE `CampusPlatform`
 -- CampusPlatform.class definition
 
 CREATE TABLE `class` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `course_id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
-  `day` varchar(50) NOT NULL,
-  `start_time` datetime DEFAULT NULL,
-  `end_time` datetime DEFAULT NULL,
-  `status` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'IN_PROGRESS',
-  `room_id` int DEFAULT NULL,
-  `tencent_meeting` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `course_id` (`course_id`),
-  KEY `user_id` (`user_id`),
-  KEY `class_ibfk_3` (`room_id`),
-  CONSTRAINT `class_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `class_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `class_ibfk_3` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
+ `id` int NOT NULL AUTO_INCREMENT,
+ `name` varchar(50) NOT NULL,
+ `course_id` int NOT NULL,
+ `user_id` int DEFAULT NULL,
+ `day` varchar(50) NOT NULL,
+ `start_time` datetime DEFAULT NULL,
+ `end_time` datetime DEFAULT NULL,
+ `status` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'IN_PROGRESS',
+ `room_id` int DEFAULT NULL,
+ `tencent_meeting` varchar(100) DEFAULT NULL,
+ `max_student_count` int DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ KEY `course_id` (`course_id`),
+ KEY `user_id` (`user_id`),
+ KEY `class_ibfk_3` (`room_id`),
+ CONSTRAINT `class_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `course` (`id`) ON DELETE CASCADE,
+ CONSTRAINT `class_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+ CONSTRAINT `class_ibfk_3` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- CampusPlatform.course definition
 
