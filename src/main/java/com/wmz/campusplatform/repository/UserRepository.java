@@ -1,6 +1,7 @@
 package com.wmz.campusplatform.repository;
 
 import com.wmz.campusplatform.pojo.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +32,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findByRoleIn(List<String> roleList);
 
     List<User> findByName(String username);
+
+    @Query(value = "SELECT u " +
+            "FROM User AS u WHERE u.role = ?1")
+    List<User> findByRoleAndPage(String role, Pageable pageable);
 }
