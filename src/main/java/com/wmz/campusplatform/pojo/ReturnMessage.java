@@ -57,7 +57,11 @@ public enum ReturnMessage {
 
     IS_TEACHER(418, "您是该班级的导生"),
 
-    INVALID_STUDENT_UPPER_LIMIT(419, "学生上限数不合法");
+    INVALID_STUDENT_UPPER_LIMIT(419, "学生上限数不合法"),
+
+    NULL_STUDENT_LIST(420, "请先选择学生"),
+
+    LOCKED_ACCOUNT(421, "账号已锁定，请联系超级管理员解锁");
 
     private int codeNum;
 

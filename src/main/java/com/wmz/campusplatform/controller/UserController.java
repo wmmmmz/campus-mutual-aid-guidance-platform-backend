@@ -227,9 +227,28 @@ public class UserController {
     public ResultTool saveAdminList(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
         List<String> stuIdList = (List<String>) map.get("stuIdList");
+        if (stuIdList.size() == 0){
+            resultTool.setCode(ReturnMessage.NULL_STUDENT_LIST.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_STUDENT_LIST.getCodeMessage());
+            return resultTool;
+        }
         for (String stuId : stuIdList) {
             createAdminAccountBasedOnStudentAccount(stuId);
         }
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        return resultTool;
+    }
+
+    @PostMapping("/handleUserLock")
+    public ResultTool handleUserLock(@RequestBody Map<String, Object> map){
+        ResultTool resultTool = new ResultTool();
+        String stuId = (String) map.get("stuId");
+        Boolean lock = (Boolean) map.get("lock");
+        String role = (String) map.get("role");
+        User user = userRepository.findByStuIdAndRole(stuId, role);
+        user.setLocked(lock);
+        userRepository.save(user);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;

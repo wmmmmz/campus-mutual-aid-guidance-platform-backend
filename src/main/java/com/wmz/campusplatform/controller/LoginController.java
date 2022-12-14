@@ -2,12 +2,10 @@ package com.wmz.campusplatform.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.wmz.campusplatform.convert.UserDetailsConvert;
-import com.wmz.campusplatform.pojo.Img;
-import com.wmz.campusplatform.pojo.ResultTool;
-import com.wmz.campusplatform.pojo.User;
-import com.wmz.campusplatform.pojo.ReturnMessage;
+import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.service.MongoDBService;
+import com.wmz.campusplatform.utils.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +34,12 @@ public class LoginController {
         ResultTool resultTool = new ResultTool();
         User user = userRepository.findByStuIdAndPwdAndRole(username, DigestUtils.md5DigestAsHex(pwd.getBytes()), role);
         if (user != null){
+            //user locked
+            if (!BooleanUtils.isFalse(user.getLocked())){
+                resultTool.setCode(ReturnMessage.LOCKED_ACCOUNT.getCodeNum());
+                resultTool.setMessage(ReturnMessage.LOCKED_ACCOUNT.getCodeMessage());
+                return resultTool;
+            }
             StpUtil.login(user.getId());
             resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
             resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
@@ -43,7 +47,7 @@ public class LoginController {
             String imgPre = null;
             List<Img> imgListByImgUrl = mongoDBService.getImgListByImgUrl(user.getImgUrl());
             if(imgListByImgUrl.size() == 0){
-                imgFile = mongoDBService.getImgListByImgUrl("default").get(0).getImgFile();
+                imgFile = mongoDBService.getImgListByImgUrl(Status.DEFAULT_IMG.getLabel()).get(0).getImgFile();
             }else{
                 imgFile = imgListByImgUrl.get(0).getImgFile();
                 imgPre = imgListByImgUrl.get(0).getImgPre();

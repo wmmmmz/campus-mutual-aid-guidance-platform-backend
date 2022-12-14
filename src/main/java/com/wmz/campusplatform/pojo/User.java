@@ -2,15 +2,9 @@ package com.wmz.campusplatform.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.models.auth.In;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "user")
@@ -38,6 +32,8 @@ public class User {
     private String interviewStatus;
 
     private String imgUrl;
+
+    private Boolean isLocked;
 
     //用户收到的通知列表
     @JsonIgnoreProperties(value = "receiverList")
@@ -183,5 +179,13 @@ public class User {
 
     public void setTeachEnrollClassList(List<Class> teachEnrollClassList) {
         this.teachEnrollClassList = teachEnrollClassList;
+    }
+
+    public Boolean getLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(Boolean locked) {
+        isLocked = locked;
     }
 }
