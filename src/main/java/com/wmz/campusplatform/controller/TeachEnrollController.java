@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/teachEnroll")
@@ -47,6 +48,9 @@ public class TeachEnrollController {
 
     @Autowired
     private PageService pageService;
+
+    @Autowired
+    private ClassService classService;
 
     @PostMapping("/checkEnroll")
     public ResultTool checkEnroll(@RequestBody Map<String, Object> map){
@@ -148,7 +152,8 @@ public class TeachEnrollController {
                     prefix + Base64.getEncoder().encodeToString(resumeByte),
                     (Date) teachData.get("interview_start_date"),
                     (Date) teachData.get("interview_end_date"),
-                    (Date) teachData.get("passDate")
+                    (Date) teachData.get("passDate"),
+                    (String) teachData.get("remark")
             );
             String interviewDate = "";
             if (teachData.get("interview_start_date") != null && teachData.get("interview_end_date") != null){
@@ -195,7 +200,7 @@ public class TeachEnrollController {
             resultTool.setCode(ReturnMessage.NULL_INTERVIEW_TIME.getCodeNum());
             resultTool.setMessage(ReturnMessage.NULL_INTERVIEW_TIME.getCodeMessage());
             return resultTool;
-        }else if (((String) map.get("interviewLink")).length() != 9){
+        }else if (!classService.TencentMeetingValid((String) map.get("interviewLink"))){
             resultTool.setCode(ReturnMessage.INVALID_INTERVIEW_LINK.getCodeNum());
             resultTool.setMessage(ReturnMessage.INVALID_INTERVIEW_LINK.getCodeMessage());
             return resultTool;
@@ -279,9 +284,12 @@ public class TeachEnrollController {
                 , userRepository.findByName(username), description);
 
         //send hired notify to admin account
+        List<User> adminList = new ArrayList<>();
+        User admin = userRepository.findByRole(Role.admin.name()).get(0);
+        adminList.add(admin);
         String description2 = username + "已接收您发放的offer，成为 " + termName + " - " + map.get("className") + " 的导生。";
         notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
-                , userRepository.findByRole(Role.admin.name()), description2);
+                , adminList, description2);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
@@ -336,9 +344,12 @@ public class TeachEnrollController {
                     , userRepository.findByName(username), description2);
         }else {
             //send refuse notify to admin account
+            List<User> adminList = new ArrayList<>();
+            User admin = userRepository.findByRole(Role.admin.name()).get(0);
+            adminList.add(admin);
             String description = username + "拒绝了您发放的offer: " + termName + " - " + map.get("className") + " 导生，原因为 " + reason;
             notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
-                    , userRepository.findByRole(Role.admin.name()), description);
+                    , adminList, description);
         }
 
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());

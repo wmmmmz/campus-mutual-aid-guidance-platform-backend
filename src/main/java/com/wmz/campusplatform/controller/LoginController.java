@@ -53,7 +53,7 @@ public class LoginController {
                 imgPre = imgListByImgUrl.get(0).getImgPre();
             }
             resultTool.setData(userDetailsConvert.userConvert(user, StpUtil.getTokenValue(), imgPre, Base64.getEncoder().encodeToString(imgFile)));
-        }else if (userRepository.findByStuIdAndPwd(username, DigestUtils.md5DigestAsHex(pwd.getBytes())) == null){
+        }else if (userRepository.findByStuIdAndPwd(username, DigestUtils.md5DigestAsHex(pwd.getBytes())).size() == 0){
             resultTool.setCode(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeNum());
             resultTool.setMessage(ReturnMessage.WRONG_USERNAME_OR_PASSWORD.getCodeMessage());
         }else {

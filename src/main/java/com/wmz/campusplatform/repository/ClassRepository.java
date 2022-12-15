@@ -201,7 +201,7 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             ", u.class_name AS studentClass, c.name AS className, c2.name AS courseName, c.day, c.start_time AS startTime\n" +
             "       , c.end_time AS endTime, room.room_name AS classroom, te.status\n" +
             "       , te.enroll_date AS enrollDate, te.interview_start_date, te.interview_end_date\n" +
-            "       , te.success_date AS successDate, te.interview_link AS interviewLink, te.resume \n" +
+            "       , te.success_date AS successDate, te.interview_link AS interviewLink, te.resume, te.remark \n" +
             "FROM teach_enroll te \n" +
             "LEFT JOIN `user` u ON u.id = te.user_id \n" +
             "LEFT JOIN class c ON c.id = class_id \n" +
@@ -299,7 +299,12 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
             "LEFT JOIN student_enroll_class sec ON sec.class_id = c.id \n" +
             "LEFT JOIN room ON c.room_id = room.id \n" +
             "LEFT JOIN `user` ON `user`.id = c.user_id \n" +
-            "WHERE t.term = :termName AND sec.user_id = :userId AND\n" +
+            "WHERE t.term = :termName AND c.id IN (" +
+            "SELECT c2.id " +
+            "FROM class c2 " +
+            "LEFT JOIN student_enroll_class sec2 ON sec2.class_id = c2.id \n" +
+            "WHERE sec2.user_id = :userId" +
+            ") AND\n" +
             "(c.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c2.name LIKE CONCAT('%' ,ifNull(:query,'') ,'%') \n" +
             "OR c.day LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR c.start_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +
             "OR c.end_time LIKE CONCAT('%' ,ifNull(:query,'') ,'%') OR room.room_name LIKE CONCAT('%' ,ifNull(:query,'') ,'%')\n" +

@@ -45,7 +45,7 @@ public enum ReturnMessage {
 
     NULL_INTERVIEW_TIME(422, "请输入面试时间"),
 
-    INVALID_INTERVIEW_LINK(413, "会议号格式错误"),
+    INVALID_INTERVIEW_LINK(413, "会议号格式错误，应为九位数字"),
 
     CLASS_ASSIGNED_TEACHER(414, "该班级已分配导生"),
 
@@ -61,7 +61,17 @@ public enum ReturnMessage {
 
     NULL_STUDENT_LIST(420, "请先选择学生"),
 
-    LOCKED_ACCOUNT(421, "账号已锁定，请联系超级管理员解锁");
+    LOCKED_ACCOUNT(421, "账号已锁定，请联系超级管理员解锁"),
+
+    NULL_OLD_PASSWORD(422, "旧密码不能为空"),
+
+    WRONG_OLD_PASSWORD(422, "旧密码错误"),
+
+    NULL_NEW_PASSWORD(422, "新密码不能为空"),
+
+    NULL_TENCENT_MEETING(424, "请输入预定的会议号"),
+
+    INVALID_TENCENT_MEETING(425, "会议号格式错误，应为九位数字");
 
     private int codeNum;
 

@@ -7,6 +7,7 @@ import com.wmz.campusplatform.pojo.Class;
 import com.wmz.campusplatform.repository.ClassRepository;
 import com.wmz.campusplatform.repository.TermRepository;
 import com.wmz.campusplatform.repository.UserRepository;
+import com.wmz.campusplatform.service.ClassService;
 import com.wmz.campusplatform.service.NotifyService;
 import com.wmz.campusplatform.service.PageService;
 import com.wmz.campusplatform.service.TermService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,6 +47,9 @@ public class ClassController {
 
     @Autowired
     private PageService pageService;
+
+    @Autowired
+    private ClassService classService;
 
     @PostMapping("/saveClass")
     public ResultTool saveClass(@RequestBody ClassDetails classDetails){
@@ -89,6 +94,16 @@ public class ClassController {
     @PostMapping("/updateTencentMeeting")
     public ResultTool updateTencentMeeting(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
+        String tencentMeeting = (String) map.get("tencentMeeting");
+        if (StringUtils.isEmpty(tencentMeeting)){
+            resultTool.setCode(ReturnMessage.NULL_TENCENT_MEETING.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_TENCENT_MEETING.getCodeMessage());
+            return resultTool;
+        }else if (!classService.TencentMeetingValid(tencentMeeting)) {
+            resultTool.setCode(ReturnMessage.INVALID_TENCENT_MEETING.getCodeNum());
+            resultTool.setMessage(ReturnMessage.INVALID_TENCENT_MEETING.getCodeMessage());
+            return resultTool;
+        }
         String termName = termService.getTermVerified((String) map.get("termName"));
         String className = (String) map.get("className");
         List<Class> classList = classRepository.findByTermNameAndClassName(termName, className);
@@ -275,6 +290,7 @@ public class ClassController {
 
     private ResultTool getErrorMessage(ClassDetails classDetails, boolean isUpdate){
         ResultTool resultTool = new ResultTool();
+        String pattern = "d{9}";
         if (StringUtils.isEmpty(classDetails.getClassName())){
             resultTool.setCode(ReturnMessage.NULL_CLASS_NAME.getCodeNum());
             resultTool.setMessage(ReturnMessage.NULL_CLASS_NAME.getCodeMessage());

@@ -73,6 +73,11 @@ public class UserController {
     @PostMapping("/changePassword")
     public ResultTool changePassword(@RequestBody User user){
         ResultTool resultTool = new ResultTool();
+        if (StringUtils.isEmpty(user.getPwd())){
+            resultTool.setCode(ReturnMessage.NULL_NEW_PASSWORD.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_NEW_PASSWORD.getCodeMessage());
+            return resultTool;
+        }
         User user1 = userRepository.findByStuIdAndRole(user.getStuId(), user.getRole());
         if (user1 == null){
             log.error("用户不存在");
@@ -91,11 +96,16 @@ public class UserController {
     @PostMapping("/checkPassword")
     public ResultTool checkPassword(@RequestBody User user){
         ResultTool resultTool = new ResultTool();
+        if (StringUtils.isEmpty(user.getPwd())){
+            resultTool.setCode(ReturnMessage.NULL_OLD_PASSWORD.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NULL_OLD_PASSWORD.getCodeMessage());
+            return resultTool;
+        }
         User user1 = userRepository.findByStuIdAndPwdAndRole(user.getStuId(), DigestUtils.md5DigestAsHex(user.getPwd().getBytes()), user.getRole());
         if (user1 == null){
             log.error("用户不存在");
-            resultTool.setCode(ReturnMessage.NO_USER.getCodeNum());
-            resultTool.setMessage(ReturnMessage.NO_USER.getCodeMessage());
+            resultTool.setCode(ReturnMessage.WRONG_OLD_PASSWORD.getCodeNum());
+            resultTool.setMessage(ReturnMessage.WRONG_OLD_PASSWORD.getCodeMessage());
         }else{
             resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
             resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
