@@ -63,20 +63,20 @@ CREATE TABLE `term` (
 -- CampusPlatform.`user` definition
 
 CREATE TABLE `user` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `stu_id` varchar(100) NOT NULL,
-  `pwd` varchar(100) NOT NULL,
-  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `class_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `tel` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `wx` varchar(100) DEFAULT NULL,
-  `role` varchar(100) NOT NULL,
-  `description` varchar(100) DEFAULT NULL,
-  `interview_status` varchar(100) DEFAULT 'NO_NEED',
-  `img_url` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'default',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+    `id` int NOT NULL AUTO_INCREMENT,
+    `stu_id` varchar(100) NOT NULL,
+    `pwd` varchar(100) NOT NULL,
+    `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    `class_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+    `tel` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+    `wx` varchar(100) DEFAULT NULL,
+    `role` varchar(100) NOT NULL,
+    `description` varchar(100) DEFAULT NULL,
+    `interview_status` varchar(100) DEFAULT 'NO_NEED',
+    `img_url` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'default',
+    `is_locked` tinyint(1) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- CampusPlatform.notify_announce definition
