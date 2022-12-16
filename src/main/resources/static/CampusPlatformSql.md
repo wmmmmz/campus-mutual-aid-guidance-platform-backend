@@ -163,5 +163,53 @@ CREATE TABLE `room` (
   `form` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
+-- CampusPlatform.conversation definition
+-- conversation basic information
+CREATE TABLE `conversation` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `avatar_url` varchar(100) DEFAULT NULL,
+    `name` varchar(100) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+-- CampusPlatform.user_conversation definition
+-- userList in conversation
+CREATE TABLE `user_conversation` (
+     `id` int NOT NULL AUTO_INCREMENT,
+     `user_id` int DEFAULT NULL,
+     `conversation_id` int DEFAULT NULL,
+     PRIMARY KEY (`id`),
+     KEY `user_id` (`user_id`),
+     KEY `conversation_id` (`conversation_id`),
+     CONSTRAINT `user_conversation_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversation` (`id`) ON DELETE CASCADE,
+     CONSTRAINT `user_conversation_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+-- CampusPlatform.message definition
+-- record message 
+CREATE TABLE `message` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `user_id` int DEFAULT NULL,
+   `conversation_id` int DEFAULT NULL,
+   `content` varchar(1000) DEFAULT NULL,
+   `publish_time` datetime DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `user_id` (`user_id`),
+   KEY `conversation_id` (`conversation_id`),
+   CONSTRAINT `message_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversation` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `message_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 ```
 
