@@ -250,6 +250,20 @@ public class UserController {
         return resultTool;
     }
 
+    /**
+     * get all student in DB
+     * @return
+     */
+    @GetMapping("/getUserList")
+    public ResultTool getUserList(){
+        ResultTool resultTool = new ResultTool();
+        List<User> userList = userRepository.findByRole(Role.student.name());
+        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+        resultTool.setData(userList);
+        return resultTool;
+    }
+
     @PostMapping("/handleUserLock")
     public ResultTool handleUserLock(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();

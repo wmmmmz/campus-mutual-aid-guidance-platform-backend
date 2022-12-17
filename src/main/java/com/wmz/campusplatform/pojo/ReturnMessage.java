@@ -71,7 +71,11 @@ public enum ReturnMessage {
 
     NULL_TENCENT_MEETING(424, "请输入预定的会议号"),
 
-    INVALID_TENCENT_MEETING(425, "会议号格式错误，应为九位数字");
+    INVALID_TENCENT_MEETING(425, "会议号格式错误，应为九位数字"),
+
+    CONVERSATION_EXIST(426, "聊天已存在"),
+
+    NULL_CONTENT(427, "请先输入");
 
     private int codeNum;
 

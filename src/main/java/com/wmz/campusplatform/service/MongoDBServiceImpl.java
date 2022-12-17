@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -39,5 +40,12 @@ public class MongoDBServiceImpl implements MongoDBService{
         Criteria fileNameCriteria = Criteria.where("fileName").is(fileName);
         Query query = new Query(fileNameCriteria);
         return mongoDBHelper.find(query, UploadFile.class);
+    }
+
+    @Override
+    public String getBase64ByImg(Img img) {
+        String imgPre = img.getImgPre();
+        byte[] imgFile = img.getImgFile();
+        return imgPre + "," + Base64.getEncoder().encodeToString(imgFile);
     }
 }

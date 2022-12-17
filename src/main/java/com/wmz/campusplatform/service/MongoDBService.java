@@ -12,4 +12,6 @@ public interface MongoDBService {
     public List<Carousel> getCarouselByThemeAndImgFile(String theme, byte[] imgFile);
 
     public List<UploadFile> getFileByFileName(String fileName);
+
+    public String getBase64ByImg(Img img);
 }

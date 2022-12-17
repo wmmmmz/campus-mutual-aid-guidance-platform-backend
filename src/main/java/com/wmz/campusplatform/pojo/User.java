@@ -52,6 +52,11 @@ public class User {
     @ManyToMany(mappedBy = "interviewList")
     private List<Class> teachEnrollClassList;
 
+    //用户聊天室列表
+    @JsonIgnoreProperties(value = "userList")
+    @ManyToMany(mappedBy = "userList")
+    private List<Conversation> conversationList;
+
     public User() {
     }
 
@@ -179,6 +184,14 @@ public class User {
 
     public void setTeachEnrollClassList(List<Class> teachEnrollClassList) {
         this.teachEnrollClassList = teachEnrollClassList;
+    }
+
+    public List<Conversation> getConversationList() {
+        return conversationList;
+    }
+
+    public void setConversationList(List<Conversation> conversationList) {
+        this.conversationList = conversationList;
     }
 
     public Boolean getLocked() {
