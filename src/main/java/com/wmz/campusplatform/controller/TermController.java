@@ -151,7 +151,7 @@ public class TermController {
         return resultTool;
     }
 
-    @SaCheckRole("admin")
+
     @GetMapping("/getAllTerm")
     public ResultTool getAllTerm(){
         ResultTool resultTool = new ResultTool();
