@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.details.CourseDetails;
 import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.CourseRepository;
@@ -34,6 +35,7 @@ public class CourseController {
     @Autowired
     private PageService pageService;
 
+    @SaCheckRole("admin")
     @GetMapping("/getCourseDataList")
     public ResultTool getCourseDataList(@RequestParam(required = false) String query, String termName
                                        ,@RequestParam(required = false) Integer pageSize
@@ -55,6 +57,7 @@ public class CourseController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/saveCourse")
     public ResultTool saveCourse(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
@@ -75,6 +78,7 @@ public class CourseController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/updateCourse")
     public ResultTool  updateCourse(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
@@ -92,6 +96,7 @@ public class CourseController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/deleteCourse")
     public ResultTool deleteCourse(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
@@ -103,6 +108,7 @@ public class CourseController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @GetMapping("/getCourseByTerm")
     public ResultTool getCourseByTerm(@RequestParam String termName){
         ResultTool resultTool = new ResultTool();

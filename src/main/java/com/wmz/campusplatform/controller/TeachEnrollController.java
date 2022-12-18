@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.details.TeachEnrollDetails;
 import com.wmz.campusplatform.handler.MongoDBHelper;
 import com.wmz.campusplatform.pojo.*;
@@ -189,6 +190,7 @@ public class TeachEnrollController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/updateStatusToArrangeInterview")
     public ResultTool updateStatusToArrangeInterview(@RequestBody Map<String, Object> map) throws ParseException {
         ResultTool resultTool = new ResultTool();
@@ -295,6 +297,7 @@ public class TeachEnrollController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/updateStatusToPassed")
     public ResultTool updateStatusToPassed(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();

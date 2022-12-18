@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.convert.TermDetailsConvert;
 import com.wmz.campusplatform.details.TermDetails;
 import com.wmz.campusplatform.pojo.ResultTool;
@@ -30,6 +31,7 @@ public class TermController {
     @Autowired
     private PageService pageService;
 
+    @SaCheckRole("admin")
     @PostMapping("/saveTerm")
     public ResultTool saveTerm(@RequestBody TermDetails termDetails){
         ResultTool resultTool = new ResultTool();
@@ -55,6 +57,7 @@ public class TermController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/updateTerm")
     public ResultTool updateTerm(@RequestBody TermDetails termDetails){
         ResultTool resultTool = new ResultTool();
@@ -77,6 +80,7 @@ public class TermController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @GetMapping("/getTermDataList")
     public ResultTool getTermDataList(@RequestParam(required = false) String query
                                     , @RequestParam(required = false) Integer pageSize
@@ -122,6 +126,7 @@ public class TermController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/deleteTerm")
     public ResultTool deleteTerm(@RequestBody Term term){
         ResultTool resultTool = new ResultTool();
@@ -146,6 +151,7 @@ public class TermController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @GetMapping("/getAllTerm")
     public ResultTool getAllTerm(){
         ResultTool resultTool = new ResultTool();

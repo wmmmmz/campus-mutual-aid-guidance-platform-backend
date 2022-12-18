@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.RoomRepository;
 import com.wmz.campusplatform.repository.TermRepository;
@@ -28,6 +29,7 @@ public class RoomController {
     @Autowired
     private TermRepository termRepository;
 
+    @SaCheckRole("admin")
     @GetMapping("/getFreeRoomByTerm")
     public ResultTool getFreeRoomByTerm(@RequestParam(required = false) String start
                                        ,@RequestParam(required = false) String end

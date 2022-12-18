@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.details.CarouselDetails;
 import com.wmz.campusplatform.handler.MongoDBHelper;
 import com.wmz.campusplatform.pojo.Carousel;
@@ -33,6 +34,7 @@ public class CarouselController {
     @Autowired
     private MongoAutoIdUtil mongoAutoIdUtil;
 
+    @SaCheckRole("admin")
     @PostMapping("/saveCarousel")
     public ResultTool saveCarousel(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();

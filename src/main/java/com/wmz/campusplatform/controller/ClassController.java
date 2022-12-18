@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.convert.ClassDetailsConvert;
 import com.wmz.campusplatform.details.ClassDetails;
 import com.wmz.campusplatform.pojo.*;
@@ -169,6 +170,7 @@ public class ClassController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/deleteClass")
     public ResultTool deleteClass(@RequestBody Map<String, String> map){
         ResultTool resultTool = new ResultTool();
@@ -290,7 +292,6 @@ public class ClassController {
 
     private ResultTool getErrorMessage(ClassDetails classDetails, boolean isUpdate){
         ResultTool resultTool = new ResultTool();
-        String pattern = "d{9}";
         if (StringUtils.isEmpty(classDetails.getClassName())){
             resultTool.setCode(ReturnMessage.NULL_CLASS_NAME.getCodeNum());
             resultTool.setMessage(ReturnMessage.NULL_CLASS_NAME.getCodeMessage());

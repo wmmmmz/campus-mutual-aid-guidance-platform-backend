@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.details.NotifyAnnounceWithStatus;
 import com.wmz.campusplatform.details.UserDetails;
 import com.wmz.campusplatform.handler.MongoDBHelper;
@@ -201,6 +202,7 @@ public class UserController {
         return resultTool;
     }
 
+    @SaCheckRole("superAdmin")
     @GetMapping("/getAdminDataList")
     public ResultTool getAdminDataList(@RequestParam String query,
                                        @RequestParam(required = false) Integer pageIndex,
@@ -220,6 +222,7 @@ public class UserController {
      * get students don't have admin account
      * @return
      */
+    @SaCheckRole("superAdmin")
     @GetMapping("/getStudentList")
     public ResultTool getStudentList(){
         ResultTool resultTool = new ResultTool();
@@ -233,6 +236,7 @@ public class UserController {
         return resultTool;
     }
 
+    @SaCheckRole("superAdmin")
     @PostMapping("/saveAdminList")
     public ResultTool saveAdminList(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
@@ -264,6 +268,7 @@ public class UserController {
         return resultTool;
     }
 
+    @SaCheckRole("superAdmin")
     @PostMapping("/handleUserLock")
     public ResultTool handleUserLock(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();

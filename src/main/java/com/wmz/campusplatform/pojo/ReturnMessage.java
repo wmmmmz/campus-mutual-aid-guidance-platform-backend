@@ -75,8 +75,9 @@ public enum ReturnMessage {
 
     CONVERSATION_EXIST(426, "聊天已存在"),
 
-    NULL_CONTENT(427, "请先输入");
+    NULL_CONTENT(427, "请先输入"),
 
+    NO_PERMISSION(428, "无权限");
     private int codeNum;
 
     private String codeMessage;

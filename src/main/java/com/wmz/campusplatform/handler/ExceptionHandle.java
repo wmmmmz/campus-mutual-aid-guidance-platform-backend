@@ -20,4 +20,17 @@ public class ExceptionHandle {
         log.error(e.getMessage());
         return new ResultTool(ReturnMessage.NOT_LOGIN.getCodeNum(), ReturnMessage.NOT_LOGIN.getCodeMessage(), e.getMessage());
     }
+
+
+    /**
+     * no permission
+     * @param e
+     * @return
+     */
+    @ExceptionHandler
+    @ResponseBody
+    public ResultTool handlerException(Exception e) {
+        log.error(e.getMessage());
+        return new ResultTool(ReturnMessage.NO_PERMISSION.getCodeNum(), ReturnMessage.NO_PERMISSION.getCodeMessage(), e.getMessage());
+    }
 }

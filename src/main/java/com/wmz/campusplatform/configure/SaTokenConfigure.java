@@ -1,6 +1,7 @@
 package com.wmz.campusplatform.configure;
 
 import cn.dev33.satoken.config.SaTokenConfig;
+import cn.dev33.satoken.interceptor.SaAnnotationInterceptor;
 import cn.dev33.satoken.interceptor.SaRouteInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,10 @@ public class SaTokenConfigure implements WebMvcConfigurer {
                 .excludePathPatterns("/login")
                 .excludePathPatterns("/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**")
                 .addPathPatterns("/**");
+
+        registry.addInterceptor(new SaAnnotationInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns("");
     }
 
     @Bean

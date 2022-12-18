@@ -1,5 +1,6 @@
 package com.wmz.campusplatform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.wmz.campusplatform.convert.NotifyAnnounceDetailConvert;
 import com.wmz.campusplatform.details.NotifyAnnounceDetails;
 import com.wmz.campusplatform.pojo.*;
@@ -41,6 +42,7 @@ public class NotifyAnnounceController {
      * @param notifyAnnounceDetails
      * @return
      */
+    @SaCheckRole("admin")
     @PostMapping("/saveNotify")
     public ResultTool saveNotify(@RequestBody NotifyAnnounceDetails notifyAnnounceDetails){
         ResultTool resultTool = new ResultTool();
@@ -127,6 +129,7 @@ public class NotifyAnnounceController {
         return resultTool;
     }
 
+    @SaCheckRole("admin")
     @PostMapping("/deleteNotify")
     public ResultTool deleteNotify(@RequestBody NotifyAnnounceDetails notifyAnnounceDetails){
         ResultTool resultTool = new ResultTool();
