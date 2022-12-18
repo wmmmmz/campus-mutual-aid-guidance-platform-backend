@@ -37,24 +37,25 @@ public class User {
 
     //用户收到的通知列表
     @JsonIgnoreProperties(value = "receiverList")
-    @ManyToMany(mappedBy = "receiverList")
+    @ManyToMany(mappedBy = "receiverList", fetch = FetchType.LAZY)
     private List<NotifyAnnounce> notifyAnnounceList;
 
     //用户报名上课的class列表
 //    @JsonIgnore
 //    @JsonIgnoreProperties(value = "studentList")
-    @ManyToMany(mappedBy = "studentList")
+    @ManyToMany(mappedBy = "studentList", fetch = FetchType.LAZY)
     private List<Class> classList;
 
     //用户曾报名授课的class列表
     @JsonIgnore
     @JsonIgnoreProperties(value = "interviewList")
-    @ManyToMany(mappedBy = "interviewList")
+    @ManyToMany(mappedBy = "interviewList", fetch = FetchType.LAZY)
     private List<Class> teachEnrollClassList;
 
     //用户聊天室列表
+
     @JsonIgnoreProperties(value = "userList")
-    @ManyToMany(mappedBy = "userList")
+    @ManyToMany(mappedBy = "userList", fetch = FetchType.LAZY)
     private List<Conversation> conversationList;
 
     public User() {
