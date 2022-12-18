@@ -225,8 +225,9 @@ public class TeachEnrollController {
         }else if (Status.INTERVIEWING.getLabel().equals(status)){
             description = "面试官更新了您的 " + termName + " - " + map.get("className") + " 导生招聘面试安排，请至 我的报名 查看更新的信息。";
         }
+        List<User> userList = getStudentAndTeacherAccountByUsername((String) map.get("studentName"));
         notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
-                ,userRepository.findByName( (String) map.get("studentName")), description);
+                , userList, description);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
@@ -282,8 +283,9 @@ public class TeachEnrollController {
 
         //send hired notify to student and teacher account
         String description = "恭喜您已成为 " + termName + " - " + map.get("className") + " 的导生，请关注后续开班通知。";
+        List<User> userList = getStudentAndTeacherAccountByUsername(username);
         notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
-                , userRepository.findByName(username), description);
+                , userList, description);
 
         //send hired notify to admin account
         List<User> adminList = new ArrayList<>();
@@ -318,8 +320,9 @@ public class TeachEnrollController {
 
         //send passed notify
         String description = "恭喜您已通过 " + termName + " - " + map.get("className") + " 导生招聘的面试，请前往 我的报名 进行offer确认。";
+        List<User> userList = getStudentAndTeacherAccountByUsername(username);
         notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
-                , userRepository.findByName(username), description);
+                , userList, description);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
@@ -342,9 +345,10 @@ public class TeachEnrollController {
 
         if ((Boolean) map.get("fromAdmin")){
             //send refuse notify to student and teacher account
-            String description2 = "您的 " + termName + " - " + map.get("className") + " 导生招聘流程已中断，原因: " + reason;
+            List<User> userList = getStudentAndTeacherAccountByUsername(username);
+            String description2 = "您的 " + termName + " - " + map.get("className") + " 导生招聘流程已终止，原因: " + reason;
             notifyService.adminSendNotifyToSpecificUser(NotifyTheme.INTERVIEW_STATUS_CHANGE.getLabel()
-                    , userRepository.findByName(username), description2);
+                    , userList, description2);
         }else {
             //send refuse notify to admin account
             List<User> adminList = new ArrayList<>();
@@ -358,5 +362,16 @@ public class TeachEnrollController {
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         return resultTool;
+    }
+
+    private List<User> getStudentAndTeacherAccountByUsername(String username){
+        List<User> userList = new ArrayList<>();
+        User studentAccount = userRepository.findByNameAndRole(username, Role.student.name());
+        userList.add(studentAccount);
+        User teacherAccount = userRepository.findByNameAndRole(username, Role.teacher.name());
+        if (teacherAccount != null){
+            userList.add(teacherAccount);
+        }
+        return userList;
     }
 }
