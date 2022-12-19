@@ -47,7 +47,7 @@ public class ConversationDetailsConvert {
         if (contentList.size() != 0){
             message = contentList.get(0);
             content = message.getContent();
-            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             time = format.format(message.getPublishTime());
         }
         Integer unreadCnt = conversationRepository.findUnreadCntByConversationUdAndUserId(conversation.getId()

@@ -9,6 +9,7 @@ import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.ConversationRepository;
 import com.wmz.campusplatform.repository.MessageRepository;
 import com.wmz.campusplatform.repository.UserRepository;
+import com.wmz.campusplatform.service.ChatService;
 import com.wmz.campusplatform.service.ConversationService;
 import com.wmz.campusplatform.service.MongoDBService;
 import com.wmz.campusplatform.utils.StringUtils;
@@ -45,6 +46,9 @@ public class ChatController {
     @Autowired
     private MessageDetailsConvert messageDetailsConvert;
 
+    @Autowired
+    private ChatService chatService;
+
     @PostMapping("/createConversation")
     public ResultTool createConversation(@RequestBody Map<String, Object> map){
         ResultTool resultTool = new ResultTool();
@@ -78,16 +82,7 @@ public class ChatController {
     @GetMapping("/getMyConversation")
     public ResultTool getMyConversation(@RequestParam String stuId){
         ResultTool resultTool = new ResultTool();
-        User user = userRepository.findByStuIdAndRole(stuId, Role.student.name());
-        List<Conversation> conversationList = user.getConversationList();
-        List<ConversationDetails> conversationDetailsList = new ArrayList<>();
-        for (Conversation conversation : conversationList) {
-            ConversationDetails conversationDetails = conversationDetailsConvert.conversationDetailConvert(stuId, conversation);
-            conversationDetailsList.add(conversationDetails);
-        }
-        conversationDetailsList = conversationDetailsList.stream()
-                .sorted(Comparator.comparing(ConversationDetails::getLatestMessageTime).reversed())
-                .collect(Collectors.toList());
+        List<ConversationDetails> conversationDetailsList = chatService.getMyConversation(stuId);
         resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
         resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
         resultTool.setData(conversationDetailsList);
