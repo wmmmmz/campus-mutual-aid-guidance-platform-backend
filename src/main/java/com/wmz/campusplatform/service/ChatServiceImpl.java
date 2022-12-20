@@ -4,16 +4,23 @@ import com.wmz.campusplatform.convert.ConversationDetailsConvert;
 import com.wmz.campusplatform.convert.MessageDetailsConvert;
 import com.wmz.campusplatform.details.ConversationDetails;
 import com.wmz.campusplatform.details.MessageDetails;
+import com.wmz.campusplatform.handler.MongoDBHelper;
 import com.wmz.campusplatform.pojo.*;
 import com.wmz.campusplatform.repository.ConversationRepository;
 import com.wmz.campusplatform.repository.MessageRepository;
 import com.wmz.campusplatform.repository.UserRepository;
+import com.wmz.campusplatform.utils.BooleanUtils;
+import com.wmz.campusplatform.utils.MongoAutoIdUtil;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.spel.ast.BooleanLiteral;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +47,15 @@ public class ChatServiceImpl implements ChatService{
 
     @Autowired
     private MessageDetailsConvert messageDetailsConvert;
+
+    @Autowired
+    private MongoDBHelper mongoDBHelper;
+
+    @Autowired
+    private FileUploadService fileUploadService;
+
+    @Autowired
+    private MongoAutoIdUtil mongoAutoIdUtil;
 
     @Override
     @Transactional
@@ -82,20 +98,30 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public void saveMessage(String stuId, String myStuId, String content) {
+    public void saveMessage(String stuId, String myStuId, String content, Boolean isImg, List<String> tempFilePath, List<String> suffixName) {
         Conversation conversation = getConversationByStuIdList(myStuId, stuId);
         User user = userRepository.findByStuIdAndRole(myStuId, Role.student.name());
-        Message message = new Message();
-        message.setContent(content);
-        message.setUser(user);
-        message.setConversation(conversation);
-        message.setPublishTime(new Date());
-        messageRepository.save(message);
-        //add unreadCnt
-        if (!stuId.equals(myStuId)){
-            conversationRepository.updateUnreadCntByConversationIdAndUserId(conversation.getId()
-                    , userRepository.findByStuIdAndRole(stuId, Role.student.name()).getId());
+        //save normal message    without img content must be not null
+        if (!StringUtils.isEmpty(content)){
+            saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, content, false);
         }
+        //save img
+        if (!BooleanUtils.isFalse(isImg) && tempFilePath.size() != 0){
+            for (int i = 1; i < tempFilePath.size(); i++) {
+                String imgName = fileUploadService.generateUUID();
+                File file = new File(tempFilePath.get(i));
+                String imgPre = fileUploadService.getBase64PrefixByFileSuffix(suffixName.get(i));
+                try {
+                    mongoDBHelper.save(new ChatBoxImg(mongoAutoIdUtil.getNextSequence("seq_chatBoxImg")
+                            , imgName, imgPre, fileUploadService.fileToByte(file)));
+                } catch (IOException e) {
+                    log.error("save chat box img in mongoDB fail");
+                    throw new RuntimeException(e);
+                }
+                saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, imgName, true);
+            }
+        }
+       
     }
 
     @Override
@@ -128,6 +154,22 @@ public class ChatServiceImpl implements ChatService{
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    public void saveMessageInDBAndAddUnreadCnt(String myStuId, String stuId, Conversation conversation, User user, String content, Boolean isImg){
+        Message message = new Message();
+        message.setContent(content);
+        message.setUser(user);
+        message.setConversation(conversation);
+        message.setPublishTime(new Date());
+        message.setImg(isImg);
+        messageRepository.save(message);
+        //add unreadCnt
+        if (!stuId.equals(myStuId)){
+            conversationRepository.updateUnreadCntByConversationIdAndUserId(conversation.getId()
+                    , userRepository.findByStuIdAndRole(stuId, Role.student.name()).getId());
+        }
     }
 
     public static boolean isToday(Date date) {

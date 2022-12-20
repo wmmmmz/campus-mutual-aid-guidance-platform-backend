@@ -1,5 +1,9 @@
 package com.wmz.campusplatform.pojo;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
 /**
  * @description 消息实体
  */
@@ -8,6 +12,12 @@ public class SocketMsg {
     private String fromUser;//发送者.
     private String toUser;//接受者.
     private String msg;//消息
+
+    private List<String> tempFilePath;
+
+    private List<String> suffixName;
+
+    private Boolean isImg;// is img or not
 
     public int getType() {
         return type;
@@ -41,4 +51,27 @@ public class SocketMsg {
         this.msg = msg;
     }
 
+    public List<String> getTempFilePath() {
+        return tempFilePath;
+    }
+
+    public void setTempFilePath(List<String> tempFilePath) {
+        this.tempFilePath = tempFilePath;
+    }
+
+    public List<String> getSuffixName() {
+        return suffixName;
+    }
+
+    public void setSuffixName(List<String> suffixName) {
+        this.suffixName = suffixName;
+    }
+
+    public Boolean getIsImg() {
+        return isImg;
+    }
+
+    public void setImg(Boolean img) {
+        isImg = img;
+    }
 }

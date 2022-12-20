@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,4 +19,12 @@ public class MessageDetails {
     private String content;
 
     private String time;
+
+    private Boolean isImg;
+
+    private String imgBase64;
+
+    private List<String> srcList;//for picture preview list
+
+
 }

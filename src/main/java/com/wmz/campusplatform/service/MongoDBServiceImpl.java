@@ -1,7 +1,9 @@
 package com.wmz.campusplatform.service;
 
+import com.mysql.cj.exceptions.StreamingNotifiable;
 import com.wmz.campusplatform.handler.MongoDBHelper;
 import com.wmz.campusplatform.pojo.Carousel;
+import com.wmz.campusplatform.pojo.ChatBoxImg;
 import com.wmz.campusplatform.pojo.Img;
 import com.wmz.campusplatform.pojo.UploadFile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +45,23 @@ public class MongoDBServiceImpl implements MongoDBService{
     }
 
     @Override
+    public List<ChatBoxImg> getChatBoxImgByImgName(String imgName) {
+        Criteria imgNameCriteria = Criteria.where("imgName").is(imgName);
+        Query query = new Query(imgNameCriteria);
+        return mongoDBHelper.find(query, ChatBoxImg.class);
+    }
+
+    @Override
     public String getBase64ByImg(Img img) {
         String imgPre = img.getImgPre();
         byte[] imgFile = img.getImgFile();
         return imgPre + "," + Base64.getEncoder().encodeToString(imgFile);
+    }
+
+    @Override
+    public String getBase64ByChatBoxImg(ChatBoxImg chatBoxImg) {
+        String imgPre = chatBoxImg.getImgPre();
+        byte[] chatBoxImgFile = chatBoxImg.getImgFile();
+        return imgPre + Base64.getEncoder().encodeToString(chatBoxImgFile);
     }
 }

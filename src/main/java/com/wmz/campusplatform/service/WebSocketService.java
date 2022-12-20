@@ -88,7 +88,7 @@ public class WebSocketService {
         try {
             socketMsg = objectMapper.readValue(message, SocketMsg.class);
             //save message
-            chatService.saveMessage(socketMsg.getToUser(), socketMsg.getFromUser(), socketMsg.getMsg());
+            chatService.saveMessage(socketMsg.getToUser(), socketMsg.getFromUser(), socketMsg.getMsg(), socketMsg.getIsImg(), socketMsg.getTempFilePath(), socketMsg.getSuffixName());
             //get sender messageList and conversationList
             Map<String,Object> senderMessage = new HashMap<String, Object>();
             senderMessage.put("type", 1);

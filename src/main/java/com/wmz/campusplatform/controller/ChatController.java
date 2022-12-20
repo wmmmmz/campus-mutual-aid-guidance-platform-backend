@@ -109,35 +109,35 @@ public class ChatController {
 
     }
 
-    @PostMapping("/saveMessage")
-    public ResultTool saveMessage(@RequestBody Map<String, Object> map){
-        ResultTool resultTool = new ResultTool();
-        String stuId = (String) map.get("stuId");
-        String myStuId = (String) map.get("myStuId");
-        String content = (String) map.get("content");
-        if (StringUtils.isEmpty(content)){
-            resultTool.setCode(ReturnMessage.NULL_CONTENT.getCodeNum());
-            resultTool.setMessage(ReturnMessage.NULL_CONTENT.getCodeMessage());
-            return resultTool;
-        }
-        Conversation conversation = getConversationByStuIdList(myStuId, stuId);
-        User user = userRepository.findByStuIdAndRole(myStuId, Role.student.name());
-        Message message = new Message();
-        message.setContent(content);
-        message.setUser(user);
-        message.setConversation(conversation);
-        message.setPublishTime(new Date());
-        messageRepository.save(message);
-        //add unreadCnt
-        if (!stuId.equals(myStuId)){
-            conversationRepository.updateUnreadCntByConversationIdAndUserId(conversation.getId()
-                    , userRepository.findByStuIdAndRole(stuId, Role.student.name()).getId());
-        }
-
-        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
-        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        return resultTool;
-    }
+//    @PostMapping("/saveMessage")
+//    public ResultTool saveMessage(@RequestBody Map<String, Object> map){
+//        ResultTool resultTool = new ResultTool();
+//        String stuId = (String) map.get("stuId");
+//        String myStuId = (String) map.get("myStuId");
+//        String content = (String) map.get("content");
+//        if (StringUtils.isEmpty(content)){
+//            resultTool.setCode(ReturnMessage.NULL_CONTENT.getCodeNum());
+//            resultTool.setMessage(ReturnMessage.NULL_CONTENT.getCodeMessage());
+//            return resultTool;
+//        }
+//        Conversation conversation = getConversationByStuIdList(myStuId, stuId);
+//        User user = userRepository.findByStuIdAndRole(myStuId, Role.student.name());
+//        Message message = new Message();
+//        message.setContent(content);
+//        message.setUser(user);
+//        message.setConversation(conversation);
+//        message.setPublishTime(new Date());
+//        messageRepository.save(message);
+//        //add unreadCnt
+//        if (!stuId.equals(myStuId)){
+//            conversationRepository.updateUnreadCntByConversationIdAndUserId(conversation.getId()
+//                    , userRepository.findByStuIdAndRole(stuId, Role.student.name()).getId());
+//        }
+//
+//        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+//        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+//        return resultTool;
+//    }
 
     @PostMapping("/clearUnreadCnt")
     public ResultTool clearUnreadCnt(@RequestBody Map<String, Object> map){

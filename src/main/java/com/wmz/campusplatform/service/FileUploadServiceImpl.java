@@ -58,6 +58,24 @@ public class FileUploadServiceImpl implements FileUploadService{
             case ".pdf":
                 prefix = "data:application/pdf;base64,";
                 break;
+            case ".jpg":
+                prefix = "data:image/jpeg;base64,";
+                break;
+            case ".png":
+                prefix = "data:image/png;base64,";
+                break;
+            case ".gif":
+                prefix = "data:image/gif;base64,";
+                break;
+            case ".svg":
+                prefix = "data:image/svg+xml;base64,";
+                break;
+            case ".ico":
+                prefix = "data:image/x-icon;base64,";
+                break;
+            case ".bmp":
+                prefix = "data:image/bmp;base64,";
+                break;
         }
         return prefix;
     }

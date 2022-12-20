@@ -20,15 +20,18 @@ public class Message {
 
     private Date publishTime;
 
+    private Boolean isImg;
+
     public Message() {
     }
 
-    public Message(Integer id, User user, Conversation conversation, String content, Date publishTime) {
+    public Message(Integer id, User user, Conversation conversation, String content, Date publishTime, Boolean isImg) {
         this.id = id;
         this.user = user;
         this.conversation = conversation;
         this.content = content;
         this.publishTime = publishTime;
+        this.isImg = isImg;
     }
 
     public Integer getId() {
@@ -71,14 +74,13 @@ public class Message {
         this.publishTime = publishTime;
     }
 
-    @Override
-    public String toString() {
-        return "Message{" +
-                "id=" + id +
-                ", user=" + user +
-                ", conversation=" + conversation +
-                ", content='" + content + '\'' +
-                ", publishTime=" + publishTime +
-                '}';
+    public Boolean getImg() {
+        return isImg;
     }
+
+    public void setImg(Boolean img) {
+        isImg = img;
+    }
+
+
 }

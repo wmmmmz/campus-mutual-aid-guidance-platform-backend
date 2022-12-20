@@ -27,6 +27,12 @@ public class FileUploadController {
     @Autowired
     private FileUploadService fileUploadService;
 
+    /**
+     * save temp file
+     * @param file
+     * @return
+     * @throws IOException
+     */
     @PostMapping(value = "/nginx/uploadByAction")
     public ResultTool uploadByNginx(@RequestParam MultipartFile file) throws IOException {
         ResultTool resultTool = new ResultTool();
