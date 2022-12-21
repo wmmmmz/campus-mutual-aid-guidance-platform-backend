@@ -110,7 +110,7 @@ public class ChatServiceImpl implements ChatService{
             for (int i = 1; i < tempFilePath.size(); i++) {
                 String imgName = fileUploadService.generateUUID();
                 File file = new File(tempFilePath.get(i));
-                String imgPre = fileUploadService.getBase64PrefixByFileSuffix(suffixName.get(i));
+                String imgPre = fileUploadService.getBase64PrefixByFileSuffix(suffixName.get(i).toLowerCase());
                 try {
                     mongoDBHelper.save(new ChatBoxImg(mongoAutoIdUtil.getNextSequence("seq_chatBoxImg")
                             , imgName, imgPre, fileUploadService.fileToByte(file)));
