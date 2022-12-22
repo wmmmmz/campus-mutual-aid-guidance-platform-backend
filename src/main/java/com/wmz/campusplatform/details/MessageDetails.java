@@ -20,6 +20,8 @@ public class MessageDetails {
 
     private String time;
 
+    private Boolean isFile;
+
     private Boolean isImg;
 
     private String imgBase64;

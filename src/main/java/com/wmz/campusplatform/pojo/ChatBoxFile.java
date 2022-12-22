@@ -9,14 +9,14 @@ import javax.persistence.Id;
 @Data
 @Document
 @AllArgsConstructor
-public class ChatBoxImg {
+public class ChatBoxFile {
     @Id
     private int id;
 
-    private String imgName;
+    private String fileName;
 
-    private String imgPre;
+    private String filePre;
 
-    private byte[] imgFile;
+    private byte[] fileByte;
 
 }

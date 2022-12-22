@@ -14,9 +14,7 @@ import com.wmz.campusplatform.utils.MongoAutoIdUtil;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.spel.ast.BooleanLiteral;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.File;
@@ -98,27 +96,34 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public void saveMessage(String stuId, String myStuId, String content, Boolean isImg, List<String> tempFilePath, List<String> suffixName) {
+    public void saveMessage(String stuId, String myStuId, String content, Boolean isFile, List<String> tempFilePath, List<String> suffixName) {
         Conversation conversation = getConversationByStuIdList(myStuId, stuId);
         User user = userRepository.findByStuIdAndRole(myStuId, Role.student.name());
         //save normal message    without img content must be not null
         if (!StringUtils.isEmpty(content)){
-            saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, content, false);
+            saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, content, false, false);
         }
-        //save img
-        if (!BooleanUtils.isFalse(isImg) && tempFilePath.size() != 0){
+        //save file
+        if (!BooleanUtils.isFalse(isFile) && tempFilePath.size() != 0){
             for (int i = 1; i < tempFilePath.size(); i++) {
-                String imgName = fileUploadService.generateUUID();
+                String fileName = fileUploadService.generateUUID();
                 File file = new File(tempFilePath.get(i));
-                String imgPre = fileUploadService.getBase64PrefixByFileSuffix(suffixName.get(i).toLowerCase());
+                String filePre = fileUploadService.getBase64PrefixByFileSuffix(suffixName.get(i).toLowerCase());
                 try {
-                    mongoDBHelper.save(new ChatBoxImg(mongoAutoIdUtil.getNextSequence("seq_chatBoxImg")
-                            , imgName, imgPre, fileUploadService.fileToByte(file)));
+                    mongoDBHelper.save(new ChatBoxFile(mongoAutoIdUtil.getNextSequence("seq_chatBoxFile")
+                            , fileName, filePre, fileUploadService.fileToByte(file)));
                 } catch (IOException e) {
-                    log.error("save chat box img in mongoDB fail");
+                    log.error("save chat box file in mongoDB fail");
                     throw new RuntimeException(e);
                 }
-                saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, imgName, true);
+                //check is img or file
+                Boolean isImg = isImg(suffixName.get(i));
+                if (isImg){
+                    saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, fileName, false, true);
+                }else {
+                    saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, fileName, true, false);
+                }
+
             }
         }
        
@@ -157,12 +162,14 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Transactional
-    public void saveMessageInDBAndAddUnreadCnt(String myStuId, String stuId, Conversation conversation, User user, String content, Boolean isImg){
+    public void saveMessageInDBAndAddUnreadCnt(String myStuId, String stuId, Conversation conversation, User user
+            , String content, Boolean isFile, Boolean isImg){
         Message message = new Message();
         message.setContent(content);
         message.setUser(user);
         message.setConversation(conversation);
         message.setPublishTime(new Date());
+        message.setFile(isFile);
         message.setImg(isImg);
         messageRepository.save(message);
         //add unreadCnt
@@ -179,5 +186,14 @@ public class ChatServiceImpl implements ChatService{
     //判断选择的日期是否是本年
     public static boolean isThisYear(Date time) {
         return isThisTime(time, "yyyy");
+    }
+
+    private Boolean isImg(String suffixName){
+        if (".jpg".equals(suffixName.toLowerCase()) || ".jpeg".equals(suffixName.toLowerCase())
+                || ".png".equals(suffixName.toLowerCase())){
+            return true;
+        }else {
+            return false;
+        }
     }
 }

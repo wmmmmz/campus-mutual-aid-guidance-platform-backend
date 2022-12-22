@@ -20,17 +20,20 @@ public class Message {
 
     private Date publishTime;
 
+    private Boolean isFile;
+
     private Boolean isImg;
 
     public Message() {
     }
 
-    public Message(Integer id, User user, Conversation conversation, String content, Date publishTime, Boolean isImg) {
+    public Message(Integer id, User user, Conversation conversation, String content, Date publishTime, Boolean isFile, Boolean isImg) {
         this.id = id;
         this.user = user;
         this.conversation = conversation;
         this.content = content;
         this.publishTime = publishTime;
+        this.isFile = isFile;
         this.isImg = isImg;
     }
 
@@ -74,6 +77,14 @@ public class Message {
         this.publishTime = publishTime;
     }
 
+    public Boolean getFile() {
+        return isFile;
+    }
+
+    public void setFile(Boolean file) {
+        isFile = file;
+    }
+
     public Boolean getImg() {
         return isImg;
     }
@@ -81,6 +92,4 @@ public class Message {
     public void setImg(Boolean img) {
         isImg = img;
     }
-
-
 }

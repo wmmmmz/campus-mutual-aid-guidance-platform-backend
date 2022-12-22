@@ -63,15 +63,17 @@ public class ConversationDetailsConvert {
             message = contentList.get(0);
             if (message.getImg()){
                 content = "[图片]";
-            }else{
+            } else if (message.getFile()) {
+                content = "[文件]";
+            } else {
                 Pattern pattern = Pattern.compile("<img src=\"https:/rescdn.qqmail.com/node/wwopen/wwopenmng/images/qq_emotion/qq/[^.]*.png\"  style= \"width: 22px;height: 22px\">");
-                StringBuilder operatorStr=new StringBuilder(message.getContent());
+                StringBuilder operatorStr = new StringBuilder(message.getContent());
                 Matcher m = pattern.matcher(operatorStr);
-                while (m.find()){
-                     //使用分组进行替换
+                while (m.find()) {
+                    //使用分组进行替换
                     String[] split = m.group().split("qq/")[1].split("\\.");
                     String replacement = "[" + EmojiList.get(Integer.parseInt(split[0])) + "]";
-                    operatorStr.replace(m.start(),m.end(),replacement);
+                    operatorStr.replace(m.start(), m.end(), replacement);
                     m = pattern.matcher(operatorStr);
                 }
                 content = operatorStr.toString();

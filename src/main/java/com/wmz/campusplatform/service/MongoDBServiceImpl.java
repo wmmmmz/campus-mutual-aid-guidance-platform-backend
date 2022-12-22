@@ -1,9 +1,8 @@
 package com.wmz.campusplatform.service;
 
-import com.mysql.cj.exceptions.StreamingNotifiable;
 import com.wmz.campusplatform.handler.MongoDBHelper;
 import com.wmz.campusplatform.pojo.Carousel;
-import com.wmz.campusplatform.pojo.ChatBoxImg;
+import com.wmz.campusplatform.pojo.ChatBoxFile;
 import com.wmz.campusplatform.pojo.Img;
 import com.wmz.campusplatform.pojo.UploadFile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +44,10 @@ public class MongoDBServiceImpl implements MongoDBService{
     }
 
     @Override
-    public List<ChatBoxImg> getChatBoxImgByImgName(String imgName) {
-        Criteria imgNameCriteria = Criteria.where("imgName").is(imgName);
-        Query query = new Query(imgNameCriteria);
-        return mongoDBHelper.find(query, ChatBoxImg.class);
+    public List<ChatBoxFile> getChatBoxImgByFileName(String fileName) {
+        Criteria fileNameCriteria = Criteria.where("fileName").is(fileName);
+        Query query = new Query(fileNameCriteria);
+        return mongoDBHelper.find(query, ChatBoxFile.class);
     }
 
     @Override
@@ -59,9 +58,9 @@ public class MongoDBServiceImpl implements MongoDBService{
     }
 
     @Override
-    public String getBase64ByChatBoxImg(ChatBoxImg chatBoxImg) {
-        String imgPre = chatBoxImg.getImgPre();
-        byte[] chatBoxImgFile = chatBoxImg.getImgFile();
+    public String getBase64ByChatBoxFile(ChatBoxFile chatBoxFile) {
+        String imgPre = chatBoxFile.getFilePre();
+        byte[] chatBoxImgFile = chatBoxFile.getFileByte();
         return imgPre + Base64.getEncoder().encodeToString(chatBoxImgFile);
     }
 }
