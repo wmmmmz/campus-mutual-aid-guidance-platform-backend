@@ -39,6 +39,10 @@ public class MessageDetailsConvert {
                 //for picture preview
                 if (message.getImg()){
                     srcList.add(base64Img);
+                }else {
+                    //for get file name
+                    content = message.getContent().split("\\.")[0] + "."
+                               + message.getContent().split("\\.")[1];
                 }
             }
         }else{

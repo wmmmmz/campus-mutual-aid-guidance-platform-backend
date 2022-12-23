@@ -96,7 +96,7 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public void saveMessage(String stuId, String myStuId, String content, Boolean isFile, List<String> tempFilePath, List<String> suffixName) {
+    public void saveMessage(String stuId, String myStuId, String content, Boolean isFile, List<String> tempFilePath, List<String> suffixName, List<String> fileName) {
         Conversation conversation = getConversationByStuIdList(myStuId, stuId);
         User user = userRepository.findByStuIdAndRole(myStuId, Role.student.name());
         //save normal message    without img content must be not null
@@ -106,12 +106,12 @@ public class ChatServiceImpl implements ChatService{
         //save file
         if (!BooleanUtils.isFalse(isFile) && tempFilePath.size() != 0){
             for (int i = 1; i < tempFilePath.size(); i++) {
-                String fileName = fileUploadService.generateUUID();
+                String name = fileName.get(i) + "." + fileUploadService.generateUUID();
                 File file = new File(tempFilePath.get(i));
                 String filePre = fileUploadService.getBase64PrefixByFileSuffix(suffixName.get(i).toLowerCase());
                 try {
                     mongoDBHelper.save(new ChatBoxFile(mongoAutoIdUtil.getNextSequence("seq_chatBoxFile")
-                            , fileName, filePre, fileUploadService.fileToByte(file)));
+                            , name, filePre, fileUploadService.fileToByte(file)));
                 } catch (IOException e) {
                     log.error("save chat box file in mongoDB fail");
                     throw new RuntimeException(e);
@@ -119,9 +119,9 @@ public class ChatServiceImpl implements ChatService{
                 //check is img or file
                 Boolean isImg = isImg(suffixName.get(i));
                 if (isImg){
-                    saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, fileName, false, true);
+                    saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, name, false, true);
                 }else {
-                    saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, fileName, true, false);
+                    saveMessageInDBAndAddUnreadCnt(myStuId, stuId, conversation, user, name, true, false);
                 }
 
             }

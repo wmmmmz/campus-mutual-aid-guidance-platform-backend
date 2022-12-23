@@ -17,6 +17,8 @@ public class SocketMsg {
 
     private List<String> suffixName;
 
+    private List<String> fileName;
+
     private Boolean isFile;// is file or not
 
     public int getType() {
@@ -71,7 +73,15 @@ public class SocketMsg {
         return isFile;
     }
 
-    public void setImg(Boolean file) {
+    public void setFile(Boolean file) {
         isFile = file;
+    }
+
+    public List<String> getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(List<String> fileName) {
+        this.fileName = fileName;
     }
 }

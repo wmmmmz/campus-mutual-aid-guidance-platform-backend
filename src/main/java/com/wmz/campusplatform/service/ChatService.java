@@ -9,7 +9,8 @@ import java.util.List;
 public interface ChatService {
     List<ConversationDetails> getMyConversation(String stuId);
 
-    void saveMessage(String stuId, String myStuId, String content, Boolean isFile, List<String> tempFilePath, List<String> suffixName);
+    void saveMessage(String stuId, String myStuId, String content, Boolean isFile, List<String> tempFilePath
+            , List<String> suffixName, List<String> fileName);
 
     List<MessageDetails> getMessageList(String myStuId, String stuId);
 }
