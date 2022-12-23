@@ -5,6 +5,7 @@ import com.wmz.campusplatform.pojo.ChatBoxFile;
 import com.wmz.campusplatform.pojo.Img;
 import com.wmz.campusplatform.pojo.Message;
 import com.wmz.campusplatform.pojo.User;
+import com.wmz.campusplatform.service.ChatService;
 import com.wmz.campusplatform.service.MongoDBService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,9 @@ import java.util.List;
 public class MessageDetailsConvert {
     @Autowired
     private MongoDBService mongoDBService;
+
+    @Autowired
+    private ChatService chatService;
 
     public MessageDetails messageDetailConvert(Message message, String myStuId){
         User user = message.getUser();
@@ -48,8 +52,9 @@ public class MessageDetailsConvert {
         }else{
             content = message.getContent();
         }
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = format.format(message.getPublishTime());
+        time = chatService.getTimeByDate(time);
         return new MessageDetails(name, avatar, user.getStuId().equals(myStuId), content, time, message.getFile(), message.getImg(), base64Img, srcList);
     }
 }

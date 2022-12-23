@@ -76,6 +76,22 @@ public class FileUploadServiceImpl implements FileUploadService{
             case ".bmp":
                 prefix = "data:image/bmp;base64,";
                 break;
+            case ".xlsx":
+                prefix = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,";
+                break;
+            case ".ppt":
+                prefix = "data:application/vnd.ms-powerpoint;base64,";
+                break;
+            case ".pptx":
+                prefix = "data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,";
+                break;
+            case ".txt":
+                prefix = "data:text/plain;base64,";
+                break;
+            case ".xls":
+                prefix = "data:application/vnd.ms-excel;base64,";
+                break;
+
         }
         return prefix;
     }

@@ -10,6 +10,7 @@ import com.wmz.campusplatform.repository.ConversationRepository;
 import com.wmz.campusplatform.repository.MessageRepository;
 import com.wmz.campusplatform.repository.UserRepository;
 import com.wmz.campusplatform.utils.BooleanUtils;
+import com.wmz.campusplatform.utils.DateUtil;
 import com.wmz.campusplatform.utils.MongoAutoIdUtil;
 import com.wmz.campusplatform.utils.StringUtils;
 import lombok.extern.log4j.Log4j2;
@@ -74,23 +75,7 @@ public class ChatServiceImpl implements ChatService{
             if (StringUtils.isEmpty(latestMessageTime)){
                 continue;
             }
-            SimpleDateFormat formatToday = new SimpleDateFormat("HH:mm");
-            SimpleDateFormat formatYear = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat formatMonth = new SimpleDateFormat("MM-dd");
-            DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            try {
-                Date date = fmt.parse(latestMessageTime);
-                if (isToday(date)){
-                    conversationDetails.setLatestMessageTime(formatToday.format(date));
-                }else if(isThisYear(date)){
-                    conversationDetails.setLatestMessageTime(formatMonth.format(date));
-                }else {
-                    conversationDetails.setLatestMessageTime(formatYear.format(date));
-                }
-            } catch (ParseException e) {
-                log.error("time parse error");
-                throw new RuntimeException(e);
-            }
+            conversationDetails.setLatestMessageTime(getTimeByDate(latestMessageTime));
         }
         return conversationDetailsList;
     }
@@ -143,6 +128,27 @@ public class ChatServiceImpl implements ChatService{
         return messageDetailsList;
     }
 
+    @Override
+    public String getTimeByDate(String time) {
+        SimpleDateFormat formatToday = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat formatYear = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatMonth = new SimpleDateFormat("MM-dd");
+        DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date date = fmt.parse(time);
+            if (DateUtil.isToday(date)){
+                return formatToday.format(date);
+            }else if(DateUtil.isThisYear(date)){
+                return formatMonth.format(date);
+            }else {
+               return formatYear.format(date);
+            }
+        } catch (ParseException e) {
+            log.error("time parse error");
+            throw new RuntimeException(e);
+        }
+    }
+
     private Conversation getConversationByStuIdList(String myStuId, String stuId) {
         List<String> conversationNameList = new ArrayList<>();
         conversationNameList.add(stuId + "_" + myStuId);
@@ -151,15 +157,15 @@ public class ChatServiceImpl implements ChatService{
         return conversationList.get(0);
     }
 
-    public static boolean isThisTime(Date date, String pattern) {
-        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-        String param = sdf.format(date);//参数时间
-        String now = sdf.format(new Date());//当前时间
-        if (param.equals(now)) {
-            return true;
-        }
-        return false;
-    }
+//    public static boolean isThisTime(Date date, String pattern) {
+//        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+//        String param = sdf.format(date);//参数时间
+//        String now = sdf.format(new Date());//当前时间
+//        if (param.equals(now)) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     @Transactional
     public void saveMessageInDBAndAddUnreadCnt(String myStuId, String stuId, Conversation conversation, User user
@@ -179,21 +185,25 @@ public class ChatServiceImpl implements ChatService{
         }
     }
 
-    public static boolean isToday(Date date) {
-        return isThisTime(date, "yyyy-MM-dd");
-    }
-
-    //判断选择的日期是否是本年
-    public static boolean isThisYear(Date time) {
-        return isThisTime(time, "yyyy");
-    }
+//    public static boolean isToday(Date date) {
+//        return isThisTime(date, "yyyy-MM-dd");
+//    }
+//
+//    //判断选择的日期是否是本年
+//    public static boolean isThisYear(Date time) {
+//        return isThisTime(time, "yyyy");
+//    }
 
     private Boolean isImg(String suffixName){
-        if (".jpg".equals(suffixName.toLowerCase()) || ".jpeg".equals(suffixName.toLowerCase())
-                || ".png".equals(suffixName.toLowerCase())){
+        if (".jpg".equalsIgnoreCase(suffixName) || ".jpeg".equalsIgnoreCase(suffixName)
+                || ".png".equalsIgnoreCase(suffixName) || ".gif".equalsIgnoreCase(suffixName)
+                || ".svg".equalsIgnoreCase(suffixName) || ".ico".equalsIgnoreCase(suffixName)
+                || ".bmp".equalsIgnoreCase(suffixName) ){
             return true;
         }else {
             return false;
         }
     }
+
+
 }

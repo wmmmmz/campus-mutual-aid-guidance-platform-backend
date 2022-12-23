@@ -13,4 +13,11 @@ public interface ChatService {
             , List<String> suffixName, List<String> fileName);
 
     List<MessageDetails> getMessageList(String myStuId, String stuId);
+
+    /**
+     * change the time format for client
+     * @param time
+     * @return
+     */
+    String getTimeByDate(String time);
 }
