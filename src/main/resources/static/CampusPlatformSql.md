@@ -204,6 +204,7 @@ CREATE TABLE `message` (
    `content` varchar(1000) DEFAULT NULL,
    `publish_time` datetime DEFAULT NULL,
    `is_img` tinyint(1) DEFAULT '0',
+   `is_file` tinyint(1) DEFAULT '0',
    PRIMARY KEY (`id`),
    KEY `user_id` (`user_id`),
    KEY `conversation_id` (`conversation_id`),
