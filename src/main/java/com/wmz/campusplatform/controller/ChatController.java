@@ -91,20 +91,19 @@ public class ChatController {
 
     @GetMapping("/getMessageList")
     public ResultTool getMessageList(@RequestParam String myStuId,
-                                     @RequestParam String stuId){
+                                     @RequestParam String stuId,
+                                     @RequestParam Integer pageSize,
+                                     @RequestParam Integer startIndex){
         ResultTool resultTool = new ResultTool();
-        List<String> conversationNameList = new ArrayList<>();
-        conversationNameList.add(stuId + "_" + myStuId);
-        conversationNameList.add(myStuId + "_" + stuId);
-        List<Message> messageList = messageRepository.findMessageByConversationNameList(conversationNameList);
-        List<MessageDetails> messageDetailsList = new ArrayList<>();
-        for (Message message : messageList) {
-            MessageDetails messageDetails = messageDetailsConvert.messageDetailConvert(message, myStuId);
-            messageDetailsList.add(messageDetails);
+        List<MessageDetails> messageDetailsList = chatService.getMessageList(myStuId, stuId, startIndex, pageSize);
+        if (messageDetailsList.size() != 0){
+            resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
+            resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
+            resultTool.setData(messageDetailsList);
+        }else{
+            resultTool.setCode(ReturnMessage.NO_MORE.getCodeNum());
+            resultTool.setMessage(ReturnMessage.NO_MORE.getCodeMessage());
         }
-        resultTool.setCode(ReturnMessage.SUCCESS_CODE.getCodeNum());
-        resultTool.setMessage(ReturnMessage.SUCCESS_CODE.getCodeMessage());
-        resultTool.setData(messageDetailsList);
         return resultTool;
 
     }

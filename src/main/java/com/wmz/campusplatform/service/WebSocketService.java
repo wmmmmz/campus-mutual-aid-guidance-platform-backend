@@ -93,14 +93,16 @@ public class WebSocketService {
             Map<String,Object> senderMessage = new HashMap<String, Object>();
             senderMessage.put("type", 1);
             senderMessage.put("myConversation", chatService.getMyConversation(socketMsg.getFromUser()));
-            senderMessage.put("myMessage", chatService.getMessageList(socketMsg.getFromUser(), socketMsg.getToUser()));
+            senderMessage.put("myMessage", chatService.getMessageList(socketMsg.getFromUser(), socketMsg.getToUser()
+                    , 0, socketMsg.getTempFilePath().size() == 1 ? 1 : socketMsg.getTempFilePath().size() - 1));
             //check conversation
             senderMessage.put("toUser", socketMsg.getToUser());
             //get receiver messageList and conversationList
             Map<String,Object> receiverMessage = new HashMap<String, Object>();
             receiverMessage.put("type", 1);
             receiverMessage.put("myConversation", chatService.getMyConversation(socketMsg.getToUser()));
-            receiverMessage.put("myMessage", chatService.getMessageList(socketMsg.getToUser(), socketMsg.getFromUser()));
+            receiverMessage.put("myMessage", chatService.getMessageList(socketMsg.getToUser(), socketMsg.getFromUser()
+                    , 0, socketMsg.getTempFilePath().size() == 1 ? 1 : socketMsg.getTempFilePath().size() - 1));
             //check conversation
             receiverMessage.put("toUser", socketMsg.getFromUser());
             //get session

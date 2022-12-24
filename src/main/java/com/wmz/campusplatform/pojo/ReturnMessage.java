@@ -77,7 +77,9 @@ public enum ReturnMessage {
 
     NULL_CONTENT(427, "请先输入"),
 
-    NO_PERMISSION(428, "无权限");
+    NO_PERMISSION(428, "无权限"),
+
+    NO_MORE(429, "没有更多啦");
     private int codeNum;
 
     private String codeMessage;

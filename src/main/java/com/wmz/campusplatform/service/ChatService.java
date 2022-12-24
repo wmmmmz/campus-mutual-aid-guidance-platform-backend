@@ -12,7 +12,7 @@ public interface ChatService {
     void saveMessage(String stuId, String myStuId, String content, Boolean isFile, List<String> tempFilePath
             , List<String> suffixName, List<String> fileName);
 
-    List<MessageDetails> getMessageList(String myStuId, String stuId);
+    List<MessageDetails> getMessageList(String myStuId, String stuId, Integer startIndex, Integer pageSize);
 
     /**
      * change the time format for client

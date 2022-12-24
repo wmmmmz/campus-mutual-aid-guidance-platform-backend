@@ -23,10 +23,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -115,11 +112,15 @@ public class ChatServiceImpl implements ChatService{
     }
 
     @Override
-    public List<MessageDetails> getMessageList(String myStuId, String stuId) {
+    public List<MessageDetails> getMessageList(String myStuId, String stuId, Integer startIndex, Integer pageSize) {
         List<String> conversationNameList = new ArrayList<>();
         conversationNameList.add(stuId + "_" + myStuId);
         conversationNameList.add(myStuId + "_" + stuId);
-        List<Message> messageList = messageRepository.findMessageByConversationNameList(conversationNameList);
+        Integer totalCnt = messageRepository.getMessageTotalCntByConversationNameList(conversationNameList);
+        if (startIndex + pageSize > totalCnt){
+            pageSize = totalCnt + startIndex;
+        }
+        List<Message> messageList = messageRepository.findMessageByConversationNameList(conversationNameList, pageSize, startIndex);
         List<MessageDetails> messageDetailsList = new ArrayList<>();
         for (Message message : messageList) {
             MessageDetails messageDetails = messageDetailsConvert.messageDetailConvert(message, myStuId);

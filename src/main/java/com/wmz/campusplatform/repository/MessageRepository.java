@@ -18,6 +18,12 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query(nativeQuery = true, value = "SELECT * FROM message m " +
             "LEFT JOIN conversation c ON c.id = m.conversation_id " +
             "WHERE c.name IN :conversationNameList " +
-            "ORDER BY m.publish_time DESC")
-    List<Message> findMessageByConversationNameList(List<String> conversationNameList);
+            "ORDER BY m.publish_time DESC " +
+            "LIMIT :pageSize OFFSET :startIndex")
+    List<Message> findMessageByConversationNameList(List<String> conversationNameList, Integer pageSize, Integer startIndex);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM message m " +
+            "LEFT JOIN conversation c ON c.id = m.conversation_id " +
+            "WHERE c.name IN :conversationNameList ")
+    Integer getMessageTotalCntByConversationNameList(List<String> conversationNameList);
 }
