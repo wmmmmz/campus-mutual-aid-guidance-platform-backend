@@ -30,9 +30,10 @@ public interface NotifyAnnounceRepository extends JpaRepository<NotifyAnnounce, 
             "where is_auto = :isAuto AND notify_announce.sender_id IN (\n" +
             "\tSELECT id \n" +
             "\tFROM `user` \n" +
-            "\tWHERE `user`.`role` = 'admin'\n" +
+            "\tWHERE `user`.`role` = 'admin' OR `user`.`role` = 'superAdmin'\n" +
             "\t) AND nar.status = 'UNREADED' AND " +
-            "(title like CONCAT('%' ,ifNull(:query,'') ,'%') OR content like CONCAT('%' ,ifNull(:query,'') ,'%') OR create_time like CONCAT('%' ,ifNull(:query,'') ,'%')\n)" +
+            "(title like CONCAT('%' ,ifNull(:query,'') ,'%') OR content like CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR create_time like CONCAT('%' ,ifNull(:query,'') ,'%') OR u.name like CONCAT('%' ,ifNull(:query,'') ,'%')\n)" +
             "group by notify_announce.id " +
             "LIMIT :limit OFFSET :offset")
     List<Map<String, Object>> findByAllAdminSenderAndQueryByPage(String query, Boolean isAuto, Integer limit, Integer offset);
@@ -40,8 +41,9 @@ public interface NotifyAnnounceRepository extends JpaRepository<NotifyAnnounce, 
     @Query(nativeQuery = true, value = "select COUNT(*) " +
             "from notify_announce \n" +
             "left join `user` u on u.id = notify_announce.sender_id  \n" +
-            "where is_auto = :isAuto AND u.`role` = 'admin' AND " +
-            "(title like CONCAT('%' ,ifNull(:query,'') ,'%') OR content like CONCAT('%' ,ifNull(:query,'') ,'%') OR create_time like CONCAT('%' ,ifNull(:query,'') ,'%')\n)")
+            "where is_auto = :isAuto AND u.`role` = 'admin' OR u.`role` = 'superAdmin' AND " +
+            "(title like CONCAT('%' ,ifNull(:query,'') ,'%') OR content like CONCAT('%' ,ifNull(:query,'') ,'%') " +
+            "OR create_time like CONCAT('%' ,ifNull(:query,'') ,'%') OR u.name like CONCAT('%' ,ifNull(:query,'') ,'%')\n)")
     Integer getNotifyAnnounceAdminSendTotalSize(String query, Boolean isAuto);
 
     @Transactional

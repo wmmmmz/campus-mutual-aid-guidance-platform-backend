@@ -35,20 +35,20 @@ public class StpInterfaceImpl implements StpInterface {
         if (optionalUser.isPresent()){
             User user = optionalUser.get();
             String role = user.getRole();
+            list.add("student");
             if (Role.student.name().equals(role)){
-                list.add("student");
                 return list;
             }
+            list.add("teacher");
             if (Role.teacher.name().equals(role)){
-                list.add("teacher");
                 return list;
             }
+            list.add("admin");
             if (Role.admin.name().equals(role)){
-                list.add("admin");
                 return list;
             }
+            list.add("superAdmin");
             if (Role.superAdmin.name().equals(role)){
-                list.add("superAdmin");
                 return list;
             }
         }
